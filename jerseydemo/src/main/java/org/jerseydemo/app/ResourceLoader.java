@@ -4,11 +4,13 @@ import org.glassfish.jersey.server.ResourceConfig;
 
 /**
  * @author zacconding
- * @Date 2018-01-06
+ * @Date 2018-01-31
  * @GitHub : https://github.com/zacscoding
  */
-public class DemoApplication extends ResourceConfig{
-    public DemoApplication() {
+public class ResourceLoader extends ResourceConfig {
+
+    public ResourceLoader() {
+        System.out.println("## ResourceLoader is called");
         packages("org.jerseydemo.rest");
     }
 }

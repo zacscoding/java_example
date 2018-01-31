@@ -1,9 +1,10 @@
-# Jersey Demo
+# Jersey + Jetty Demo
 
 ### index
 
-- <a href="#echo-demo"> echo server (basic) </a>
-- <a href="#rest-api"> Rest API with Client </a>
+- <a href="#project">Init Project (echo server)</a>
+- <a href="#rest-api"> Rest API Server And Client</a>
+
 
 ### Ref
 
@@ -12,32 +13,177 @@
 - https://www.mkyong.com/webservices/jax-rs/jersey-hello-world-example/
 
 
-<div id="echo-demo"></div>
+<div id="init"></div>
 
-#### echo server
+#### Init Project
 
-> Maven Repository
+> Maven Dependency : pom.xml
 
-```$xslt
-    <!-- https://mvnrepository.com/artifact/com.sun.jersey/jersey-server -->
-    <dependency>
-      <groupId>com.sun.jersey</groupId>
-      <artifactId>jersey-server</artifactId>
-      <version>${jersey-version}</version>
-    </dependency>
+```
+...
+<properties>
+    <jersey.version>2.7</jersey.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+</properties>
+...
 
-    <!-- https://mvnrepository.com/artifact/com.sun.jersey/jersey-core -->
-    <dependency>
-      <groupId>com.sun.jersey</groupId>
-      <artifactId>jersey-core</artifactId>
-      <version>${jersey-version}</version>
-    </dependency>
+<dependencies>
+      <!-- jetty -->
+      <dependency>
+          <groupId>org.eclipse.jetty</groupId>
+          <artifactId>jetty-server</artifactId>
+          <version>9.2.3.v20140905</version>
+      </dependency>
+      <dependency>
+          <groupId>org.eclipse.jetty</groupId>
+          <artifactId>jetty-servlet</artifactId>
+          <version>9.2.3.v20140905</version>
+      </dependency>
+      <!-- jersey -->
+      <dependency>
+          <groupId>org.glassfish.jersey.core</groupId>
+          <artifactId>jersey-server</artifactId>
+          <version>${jersey.version}</version>
+      </dependency>
+      <dependency>
+          <groupId>org.glassfish.jersey.containers</groupId>
+          <artifactId>jersey-container-servlet-core</artifactId>
+          <version>${jersey.version}</version>
+      </dependency>
+      <dependency>
+          <groupId>org.glassfish.jersey.containers</groupId>
+          <artifactId>jersey-container-jetty-http</artifactId>
+          <version>${jersey.version}</version>
+      </dependency>
+      <dependency>
+          <groupId>org.glassfish.jersey.media</groupId>
+          <artifactId>jersey-media-moxy</artifactId>
+          <version>${jersey.version}</version>
+      </dependency>
+      <dependency>
+          <groupId>org.glassfish.jersey.media</groupId>
+          <artifactId>jersey-media-json-jackson</artifactId>
+          <version>${jersey.version}</version>
+      </dependency>
+      ....
+</dependency>
+```
 
-    <dependency>
-      <groupId>com.sun.jersey</groupId>
-      <artifactId>jersey-servlet</artifactId>
-      <version>${jersey-version}</version>
-    </dependency>
+> Build  : pom.xml  
+
+1. $mvn clean package  
+2. $cd target/  
+3. $java -jar jersey-demo.jar  
+
+```
+<build>
+    <finalName>jersey-demo</finalName>
+    <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>2.5.1</version>
+            <configuration>
+                <source>1.8</source>
+                <target>1.8</target>
+                <compilerArgument>-Xlint:all</compilerArgument>
+                <showWarnings>true</showWarnings>
+                <showDeprecation>true</showDeprecation>
+            </configuration>
+        </plugin>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-shade-plugin</artifactId>
+            <version>1.6</version>
+            <configuration>
+                <createDependencyReducedPom>true</createDependencyReducedPom>
+                <filters>
+                    <filter>
+                        <artifact>*:*</artifact>
+                        <excludes>
+                            <exclude>META-INF/*.SF</exclude>
+                            <exclude>META-INF/*.DSA</exclude>
+                            <exclude>META-INF/*.RSA</exclude>
+                        </excludes>
+                    </filter>
+                </filters>
+            </configuration>
+
+            <executions>
+                <execution>
+                    <phase>package</phase>
+                    <goals>
+                        <goal>shade</goal>
+                    </goals>
+                    <configuration>
+                        <transformers>
+                            <transformer
+                                implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                            <transformer
+                                implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <manifestEntries>
+                                    <Main-Class>org.jerseydemo.app.App</Main-Class>
+                                </manifestEntries>
+                            </transformer>
+                        </transformers>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
+    </plugins>
+</build>
+```
+
+> App.java(Main class for jetty servlet container & jersey servlet)  
+
+```
+package org.jerseydemo.app;
+
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
+
+public class App {
+
+    private static final int DEFAULT_PORT = 8090;
+    private static final String CONTEXT_PATH = "/";
+
+    public static void main(String[] args) throws Exception {
+        ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
+        context.setContextPath(CONTEXT_PATH);
+
+        Server jettyServer = new Server(DEFAULT_PORT);
+        jettyServer.setHandler(context);
+
+        ServletHolder jerseyServlet = context.addServlet(org.glassfish.jersey.servlet.ServletContainer.class, "/*");
+        jerseyServlet.setInitOrder(1);
+        jerseyServlet.setInitParameter("javax.ws.rs.Application", ResourceLoader.class.getCanonicalName());
+
+        try {
+            jettyServer.start();
+            jettyServer.join();
+        } finally {
+            jettyServer.destroy();
+        }
+    }
+}
+```
+
+> ResourceLoader (for Jersey config)  
+
+```
+package org.jerseydemo.app;
+
+import org.glassfish.jersey.server.ResourceConfig;
+
+public class ResourceLoader extends ResourceConfig {
+
+    public ResourceLoader() {
+        System.out.println("## ResourceLoader is called");
+        packages("org.jerseydemo.rest");
+    }
+}
 ```
 
 > EchoService
@@ -59,38 +205,6 @@ public class EchoService {
         return Response.status(Response.Status.OK).entity(output).build();
     }
 }
-```
-
-> web.xml
-
-```$xslt
-<!DOCTYPE web-app PUBLIC
- "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
- "http://java.sun.com/dtd/web-app_2_3.dtd" >
-
-<web-app id="WebApp_ID" version="2.4"
-         xmlns="http://java.sun.com/xml/ns/j2ee"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
-	http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
-  <display-name>Restful Web Application</display-name>
-
-  <servlet>
-    <servlet-name>jersey-serlvet</servlet-name>
-    <servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
-    <init-param>
-      <param-name>com.sun.jersey.config.property.packages</param-name>
-      <param-value>org.jerseydemo.rest</param-value>
-    </init-param>
-    <load-on-startup>1</load-on-startup>
-  </servlet>
-
-  <servlet-mapping>
-    <servlet-name>jersey-serlvet</servlet-name>
-    <url-pattern>/rest/*</url-pattern>
-  </servlet-mapping>
-
-</web-app>
 ```
 
 > Result
@@ -213,7 +327,7 @@ import org.jerseydemo.util.SimpleLogger;
 
 // path
 @Path("/person")
-// for Simpleton
+// for Singleton
 @Singleton
 public class PersonService {
     private static List<Person> persons = new ArrayList<>();
@@ -505,7 +619,6 @@ public Response remove(String id) {
   return target.request().delete();
 }
 ```
-
 ---
 
 
