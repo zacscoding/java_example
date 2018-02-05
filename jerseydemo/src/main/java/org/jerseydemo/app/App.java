@@ -24,6 +24,7 @@ public class App {
         ServletHolder jerseyServlet = context.addServlet(org.glassfish.jersey.servlet.ServletContainer.class, "/*");
         jerseyServlet.setInitOrder(1);
         jerseyServlet.setInitParameter("javax.ws.rs.Application", ResourceLoader.class.getCanonicalName());
+        System.out.println(ResourceLoader.class.getCanonicalName());
 
         try {
             jettyServer.start();
