@@ -3,6 +3,7 @@
 ### Index
 
 - <a href="#reflection">Reflection</a>
+- <a href="#stream">Stream</a>
 
 
 <div id="reflection"></div>
@@ -232,3 +233,239 @@ public class ClassMetaDataTest {
 ```aidl
 ## Dynamic instance : ReflectionTestDomain{name='default-value', age=10, hobbies=Default value! , job='Default value!'}
 ```
+
+---
+
+<div id="stream"></div>
+
+## Stream  
+
+- ref : http://book.naver.com/bookdb/book_detail.nhn?bid=8589375
+
+> 람다식으로 요소를 처리
+
+```
+System.out.println("== Iterator ==");
+List<String> list = Arrays.asList("value1", "value2", "value3");
+Iterator<String> itr = list.iterator();
+while (itr.hasNext()) {
+    System.out.println(itr.next());
+}
+
+System.out.println("== Stream ==");
+Stream<String> stream = list.stream();
+stream.forEach(name -> {
+    System.out.println(name);
+});
+```
+
+![내,외부 반복자](./pics/[stream-1]내외부_반복자.png)
+
+> parallelStream : 병렬 처리가 쉬움
+
+```
+public class StreamDefault {
+
+    List<String> defaultList;
+
+    @Before
+    public void setUp() {
+        defaultList = Arrays.asList("value1", "value2", "value3");
+    }    
+
+    @Test
+    public void parallelStream() {
+        Stream<String> parallelStream = defaultList.parallelStream();
+        parallelStream.forEach(name -> {
+            CustomPrinter.println("value : {}, current thread name : {}", name, Thread.currentThread().getName());
+        });
+    }
+
+}
+```
+
+> Result
+
+```
+value : value2, current thread name : main
+value : value3, current thread name : ForkJoinPool.commonPool-worker-2
+value : value1, current thread name : ForkJoinPool.commonPool-worker-1
+```
+
+> 중간처리(매핑, 필터링, 정렬), 최종 처리(반복, 카운팅, 평균, 총합)등의 집계 처리  
+
+> Filter
+
+```
+package stream;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import org.junit.Before;
+import org.junit.Test;
+
+public class StreamFilter {
+
+    List<Student> students;
+
+    @Before
+    public void setUp() {
+        students = new ArrayList<>();
+        for (int i = 1; i <= 10; i++) {
+            students.add(new Student("name" + i, i));
+        }
+    }
+
+    @Test
+    public void mapToInt() {
+        double average = students.stream().mapToInt(student -> {
+            return student.getScore();
+        }).average().getAsDouble();
+        System.out.println(average);
+    }
+
+    @Test
+    public void filter() {
+        int sum = students.stream().filter(stu -> {
+            return stu.getScore() % 2 == 0;
+        }).mapToInt(Student::getScore).sum();
+        System.out.println("Sum of even scores : " + sum);
+    }
+}
+```
+
+> Result  
+
+```
+Sum of even scores : 30
+```
+
+> Distinct  
+
+```
+@Test
+public void distict() {
+    List<String> names = Arrays.asList("aaa", "bbb", "ccc", "aaa");
+    names.stream().distinct().forEach(name -> System.out.println(name));
+}
+```
+
+> Result  
+
+```
+aaa
+bbb
+ccc
+```
+
+> Flatmap : 요소를 대체하는 복수 개의 요소로 구성 된 새로운 스트림 반환  
+
+```
+@Test
+public void flatMap() {
+    List<String> values = Arrays.asList("token1 token2", "token3", "token4 token5");
+    values.stream().flatMap(data -> {
+        System.out.println("check : " + data);
+        return Arrays.stream(data.split(" "));
+    }).forEach(token -> System.out.println(token));
+}
+```
+
+> Result  
+
+```
+check : token1 token2
+token1
+token2
+check : token3
+token3
+check : token4 token5
+token4
+token5
+```
+
+> mapXXX() : 요소를 대체하는 요소로 구성 된 새로운 스트림  
+
+```
+package stream;
+
+import java.util.Arrays;
+import java.util.List;
+import org.junit.Before;
+import org.junit.Test;
+
+public class StreamFilter {
+
+    List<Student> students;
+
+    @Before
+    public void setUp() {
+        students = Arrays.asList(new Student("name1", 10), new Student("name2", 30), new Student("name3", 20));
+    }
+
+    @Test
+    public void mapToInt() {
+        double average = students.stream().mapToInt(student -> {
+            return student.getScore();
+        }).average().getAsDouble();
+        System.out.println(average);
+    }
+}
+```
+
+> Result  
+
+```
+20.0
+```
+
+> asXXXStream(), boxex(), XXX : int, long, double  
+
+```
+@Test
+public void asXXXStream() {
+    int[] intArr = new int[]{1, 2, 3};
+    Arrays.stream(intArr).asDoubleStream().forEach(doubleVal -> System.out.print(doubleVal + " "));
+    System.out.println();
+    Arrays.stream(intArr).boxed().forEach(integerInst -> System.out.print(integerInst.intValue() + " "));
+}
+```
+
+```
+1.0 2.0 3.0
+1 2 3
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+---
+
+<br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
