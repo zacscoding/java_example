@@ -4,6 +4,7 @@
 
 - <a href="#reflection">Reflection</a>
 - <a href="#stream">Stream</a>
+- <a href="#blockingQueue">BlockingQueue : Producer, Consumer </a>
 
 
 <div id="reflection"></div>
@@ -437,6 +438,115 @@ public void asXXXStream() {
 1 2 3
 ```
 
+---
+
+<div id="blockingQueue"></div>
+
+## BlockingQueue TEST
+
+> Producer.java  
+
+```aidl
+package blockingqueue;
+
+import java.util.UUID;
+import java.util.concurrent.BlockingQueue;
+import util.SimpleLogger;
+
+public class Producer implements Runnable {
+
+    private BlockingQueue<String> que;
+
+    public Producer(BlockingQueue<String> que) {
+        this.que = que;
+    }
+
+    @Override
+    public void run() {
+        int i = 1;
+        while (true) {
+            try {
+                String message = "message" + (i++);                
+                long wait = (long) (Math.random() * 8000L) + 3000L;
+                SimpleLogger.info("Try to produce.... message : {}, next wait : {}", message, wait);
+                que.add(message);
+                Thread.sleep(wait);
+            } catch (Exception e) {
+                SimpleLogger.error("error", e);
+            }
+        }
+    }
+}
+```
+
+> Consumer.java  
+
+```aidl
+package blockingqueue;
+
+import java.util.concurrent.BlockingQueue;
+import util.SimpleLogger;
+
+public class Consumer implements Runnable {
+
+    private BlockingQueue<String> que;
+
+    public Consumer(BlockingQueue<String> que) {
+        this.que = que;
+    }
+
+    @Override
+    public void run() {
+        while (true) {
+            try {
+                SimpleLogger.info("Before consume(que.take())...");
+                String msg = que.take();
+                SimpleLogger.info("After consum(que.take()) :: message : {}", msg);
+            } catch (Exception e) {
+                SimpleLogger.error("error", e);
+            }
+        }
+    }
+}
+```
+
+> Runner(MAIN)
+
+```aidl
+package blockingqueue;
+
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+
+public class Runner {
+
+    public static void main(String[] args) {
+        BlockingQueue queue = new LinkedBlockingQueue();
+        Thread produce = new Thread(new Producer(queue));
+        Thread consume = new Thread(new Consumer(queue));
+        produce.start();
+        consume.start();
+    }
+}
+```
+
+> Result  
+
+```aidl
+180209 00:04:50.921 : blockingqueue.Producer Try to produce.... message : message1, next wait : 8840
+180209 00:04:50.922 : blockingqueue.Consumer Before consume(que.take())...
+180209 00:04:50.922 : blockingqueue.Consumer After consum(que.take()) :: message : message1, thread : Thread-1
+180209 00:04:50.922 : blockingqueue.Consumer Before consume(que.take())...
+180209 00:04:51.922 : blockingqueue.Producer Try to produce.... message : message2, next wait : 5182
+180209 00:04:51.922 : blockingqueue.Consumer After consum(que.take()) :: message : message2, thread : Thread-1
+180209 00:04:51.922 : blockingqueue.Consumer Before consume(que.take())...
+180209 00:04:52.923 : blockingqueue.Producer Try to produce.... message : message3, next wait : 8344
+180209 00:04:52.923 : blockingqueue.Consumer After consum(que.take()) :: message : message3, thread : Thread-1
+180209 00:04:52.923 : blockingqueue.Consumer Before consume(que.take())...
+180209 00:04:53.924 : blockingqueue.Producer Try to produce.... message : message4, next wait : 10651
+180209 00:04:53.924 : blockingqueue.Consumer After consum(que.take()) :: message : message4, thread : Thread-1
+180209 00:04:53.925 : blockingqueue.Consumer Before consume(que.take())...
+```
 
 
 

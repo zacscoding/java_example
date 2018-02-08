@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
-import util.CustomPrinter;
+import util.SimpleLogger;
 
 /**
  * @author zacconding
@@ -88,7 +88,7 @@ public class PathTest {
                     startTime = System.nanoTime();
                     boolean springResult = springMatcher.match(pattern, uri);
                     long springTime = System.nanoTime() - startTime;
-                    CustomPrinter.println("## check pattern pattern : {} , uri : {}, shiroResult : {}, springResult : {}, shiroTIme : {}, springTIme: {}, shiro-spring : {}", pattern, uri, shiroResult,
+                    SimpleLogger.println("## check pattern pattern : {} , uri : {}, shiroResult : {}, springResult : {}, shiroTIme : {}, springTIme: {}, shiro-spring : {}", pattern, uri, shiroResult,
                         springResult, shiroTIme, springTime, (shiroTIme - springTime));
                 }
             }

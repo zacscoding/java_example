@@ -1,10 +1,12 @@
 package util;
 
-import org.junit.Test;
-
-import java.math.BigInteger;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import org.junit.Test;
 
 /**
  * @author zacconding
@@ -70,7 +72,7 @@ public class HashMapTest {
         endTime = System.nanoTime();
         times[1] = endTime + startTime;
         long diff = times[0] - times[1];
-        CustomPrinter.println("## data : {} // default : {}ns // initialized : {}ns // diff : {}ns, {}ms", dataCnt, times[0], times[1], diff, TimeUnit.NANOSECONDS.toMillis(diff));
+        SimpleLogger.println("## data : {} // default : {}ns // initialized : {}ns // diff : {}ns, {}ms", dataCnt, times[0], times[1], diff, TimeUnit.NANOSECONDS.toMillis(diff));
     }
 
     /* ========================== RESULT ==========================
@@ -121,7 +123,7 @@ public class HashMapTest {
 
         times[1] = endTime + startTime;
         long diff = times[0] - times[1];
-        CustomPrinter.println("## data : {} // default : {}ns // initialized : {}ns // diff : {}ns, {}ms", dataCnt, times[0], times[1], diff, TimeUnit.NANOSECONDS.toMillis(diff));
+        SimpleLogger.println("## data : {} // default : {}ns // initialized : {}ns // diff : {}ns, {}ms", dataCnt, times[0], times[1], diff, TimeUnit.NANOSECONDS.toMillis(diff));
     }
 
     public int initializeCapacity(int expectedMaximalNumber) {

@@ -10,7 +10,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
-import util.CustomPrinter;
+import util.SimpleLogger;
 
 /**
  * @author zacconding
@@ -23,7 +23,7 @@ public class ClassMetaDataTest {
     public void display() {
         Class clazz = ReflectionTestDomain.class;
         Method[] methods = clazz.getDeclaredMethods();
-        CustomPrinter.println("## Display Methods");
+        SimpleLogger.println("## Display Methods");
         for (Method method : methods) {
             String methodName = "## " + method.getName();
             Class[] params = method.getParameterTypes();
@@ -37,18 +37,18 @@ public class ClassMetaDataTest {
                 paramVals = paramVals.substring(0, paramVals.length() - 2);
             }
             paramVals += ")";
-            CustomPrinter.println(methodName + paramVals + annotationVals);
+            SimpleLogger.println(methodName + paramVals + annotationVals);
         }
-        CustomPrinter.println("#######################################");
+        SimpleLogger.println("#######################################");
 
-        CustomPrinter.println("## Display Fields");
+        SimpleLogger.println("## Display Fields");
         Field[] fields = clazz.getDeclaredFields();
         for (Field field : fields) {
             Annotation[] annotations = field.getAnnotations();
             String annotationVals = getAnnotationInfo(annotations);
-            CustomPrinter.println("## name : {}, class name : {}, annotation : {}", field.getName(), field.getType().getName(), annotationVals);
+            SimpleLogger.println("## name : {}, class name : {}, annotation : {}", field.getName(), field.getType().getName(), annotationVals);
         }
-        CustomPrinter.println("#######################################");
+        SimpleLogger.println("#######################################");
     }
 
     @Test
@@ -81,7 +81,7 @@ public class ClassMetaDataTest {
                     }
                 }
             }
-            CustomPrinter.println("## Dynamic instance : " + inst.toString());
+            SimpleLogger.println("## Dynamic instance : " + inst.toString());
         } catch (InstantiationException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
