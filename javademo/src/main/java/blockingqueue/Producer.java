@@ -1,6 +1,5 @@
 package blockingqueue;
 
-import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import util.SimpleLogger;
 
@@ -20,17 +19,16 @@ public class Producer implements Runnable {
     @Override
     public void run() {
         int i = 1;
-        while (true) {
-            try {
-                // String randomUUID = UUID.randomUUID().toString();
+        try {
+            while (true) {
                 String message = "message" + (i++);
+                que.offer(message);
                 long wait = (long) (Math.random() * 8000L) + 3000L;
                 SimpleLogger.info("Try to produce.... message : {}, next wait : {}", message, wait);
-                que.add(message);
                 Thread.sleep(wait);
-            } catch (Exception e) {
-                SimpleLogger.error("error", e);
             }
+        } catch (Exception e) {
+            SimpleLogger.error("error", e);
         }
     }
 }

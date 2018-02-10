@@ -5,8 +5,6 @@ import com.google.gson.GsonBuilder;
 import java.io.PrintStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import sun.applet.Main;
-import sun.usagetracker.UsageTrackerClient;
 
 /**
  * @author zacconding
@@ -36,9 +34,10 @@ public class SimpleLogger {
     }
 
     public static void error(String message, Throwable t) {
-        println(SIMPLE_DATE_FORMAT.format(new Date()) + " : " + getClassName() + (message == null ? "" : message));
+        println(SIMPLE_DATE_FORMAT.format(new Date()) + " [ERROR] " + getClassName() + " : " + (message == null ? "" : message));
         if (t != null) {
-            println(getStackTraceString(t));
+            t.printStackTrace(PS);
+            // println(getStackTraceString(t));
         }
     }
 
@@ -62,6 +61,60 @@ public class SimpleLogger {
         return TO_SRING_GSON.toJson(inst);
     }
 
+    public static String getStackTraceString(int cursor) {
+        StackTraceElement[] elts = Thread.currentThread().getStackTrace();
+        if (elts == null || elts.length == 1) {
+            return "";
+        }
+
+        StringBuilder sb = new StringBuilder();
+        int start, size;
+        if (cursor >= 0) {
+            start = cursor + 2;
+            size = elts.length;
+        } else {
+            start = 2;
+            size = start - cursor + 1;
+        }
+
+        return getStackTraceString(elts, start, size);
+    }
+
+    public static String getStackTraceString(StackTraceElement[] se, int start, int size) {
+        if (se == null) {
+            return "";
+        }
+
+        if (size < 0) {
+            size = 0;
+        }
+        size = Math.min(size, se.length);
+        if (start >= size) {
+            return "";
+        }
+
+        StringBuilder sb = new StringBuilder();
+        for (int i = start; i < size; i++) {
+            sb.append("\t").append(se[i].toString());
+            if (i != size - 1) {
+                sb.append(NEW_LINE);
+            }
+        }
+
+        return sb.toString();
+    }
+
+    public static String getStackTraceString(Throwable t) {
+        StackTraceElement[] elts = null;
+
+        if ((t == null) || ((elts = t.getStackTrace()) == null)) {
+            return "";
+        }
+
+        return getStackTraceString(elts, 0, elts.length);
+    }
+
+    // ============================= private
     private static String parseContent(String content, Object[] args) {
         if (args == null || args.length == 0 || content == null || content.length() < 2) {
             return content;
@@ -93,26 +146,5 @@ public class SimpleLogger {
 
     private static String getClassName() {
         return Thread.currentThread().getStackTrace()[3].getClassName();
-    }
-
-    private static String getStackTraceString(Throwable t) {
-        if (t == null) {
-            return "";
-        }
-        StringBuilder sb = new StringBuilder();
-
-        StackTraceElement[] elts = t.getStackTrace();
-        if (elts != null) {
-            for (int i = 0; i < elts.length; i++) {
-                if (elts[i] != null) {
-                    sb.append("\t").append(elts[i].toString());
-                    if (i != elts.length - 1) {
-                        sb.append(NEW_LINE);
-                    }
-                }
-            }
-        }
-
-        return sb.toString();
     }
 }

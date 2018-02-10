@@ -1,7 +1,9 @@
 package blockingqueue;
 
+import com.sun.org.apache.xpath.internal.SourceTree;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import util.ThreadUtil;
 
 /**
  * @author zacconding
@@ -14,10 +16,12 @@ public class Runner {
         BlockingQueue queue = new LinkedBlockingQueue();
         Thread produce = new Thread(new Producer(queue));
         Thread consume = new Thread(new Consumer(queue));
-        Thread consume2 = new Thread(new Consumer(queue));
 
         produce.start();
         consume.start();
-        //consume2.start();
+
+        ThreadUtil.sleep(20 * 10000);
     }
+
+
 }

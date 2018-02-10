@@ -18,15 +18,15 @@ public class Consumer implements Runnable {
 
     @Override
     public void run() {
-        while (true) {
-            try {
+        try {
+            while (true) {
                 SimpleLogger.info("Before consume(que.take())...");
                 String msg = que.take();
                 SimpleLogger.info("After consum(que.take()) :: message : {}, thread : {}", msg, Thread.currentThread().getName());
-                //Thread.sleep(3000);
-            } catch (Exception e) {
-                SimpleLogger.error("error", e);
+                Thread.sleep(10L);
             }
+        } catch (Exception e) {
+            SimpleLogger.error("error", e);
         }
     }
 }
