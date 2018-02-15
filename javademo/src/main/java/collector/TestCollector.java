@@ -1,11 +1,12 @@
 package collector;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import util.SimpleLogger;
-import util.ThreadUtil;
 
 /**
  * Test Collector
@@ -16,13 +17,16 @@ import util.ThreadUtil;
  */
 public class TestCollector {
 
+    private static final boolean USE_BLOCKING_QUEUE = false;
     private static TestCollector INSTANCE;
     private static Object lock = new Object();
     private static final int MAX_SIZE = 20;
     private static long PERIOD = 3000L;
     private static long MAX_TIME = 10000L;
 
-    private BlockingQueue<String> que;
+    private BlockingQueue<String> blockingQueue;
+    private ConcurrentLinkedQueue<String> concurrentQueue;
+
     private long lastExcuteTime;
     private ISendApi sendApi;
     private Thread sendTask;
@@ -40,7 +44,14 @@ public class TestCollector {
     }
 
     public void setMessage(String message) {
-        que.offer(message);
+        if (message == null || message.length() == 0) {
+            return;
+        }
+        if (USE_BLOCKING_QUEUE) {
+            blockingQueue.offer(message);
+        } else {
+            concurrentQueue.offer(message);
+        }
     }
 
     private TestCollector() {
@@ -48,8 +59,12 @@ public class TestCollector {
     }
 
     private void init() {
-        que = new LinkedBlockingQueue<>();
         sendApi = new ISendApi() {
+            @Override
+            public void sendData(String data) {
+                sendDatas(Arrays.asList(data));
+            }
+
             @Override
             public void sendDatas(List<String> data) {
                 SimpleLogger.println("@@ Send data... size : {}", (data == null ? 0 : data.size()));
@@ -63,31 +78,65 @@ public class TestCollector {
             }
         };
 
-        if (sendTask == null) {
-            sendTask = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    SimpleLogger.info("## TestCollector run() is started..");
-                    while (true) {
-                        SimpleLogger.info("## Check que...");
-                        long now = System.currentTimeMillis();
-                        if ((!que.isEmpty()) && ((que.size() >= MAX_SIZE) || (lastExcuteTime + MAX_TIME <= now))) {
-                            // send
-                            int size = Math.min(que.size(), MAX_SIZE);
-                            List<String> data = new ArrayList<String>(size);
-                            for (int i = 0; i < size; i++) {
-                                data.add(que.poll());
-                            }
-                            sendApi.sendDatas(data);
-                            lastExcuteTime = now;
-                        }
-                        ThreadUtil.sleep(PERIOD);
-                    }
-                }
-            });
+        if (USE_BLOCKING_QUEUE) {
+            blockingQueue = new LinkedBlockingQueue<>();
+            sendTask = new Thread(new SendOneTask());
+        } else {
+            concurrentQueue = new ConcurrentLinkedQueue<>();
+            sendTask = new Thread(new SendMultipleTask());
+        }
 
-            sendTask.setDaemon(true);
-            sendTask.start();
+        sendTask.setDaemon(true);
+        sendTask.start();
+    }
+
+    private class SendOneTask implements Runnable {
+
+        public SendOneTask() {
+            if (blockingQueue == null) {
+                blockingQueue = new LinkedBlockingQueue<>();
+            }
+        }
+
+        @Override
+        public void run() {
+            try {
+                while (true) {
+                    String data = blockingQueue.take();
+                    sendApi.sendData(data);
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
+
+    private class SendMultipleTask implements Runnable {
+
+        @Override
+        public void run() {
+            try {
+                while (true) {
+                    SimpleLogger.info("## Check que...");
+                    long now = System.currentTimeMillis();
+                    if ((!concurrentQueue.isEmpty()) && ((concurrentQueue.size() >= MAX_SIZE) || (lastExcuteTime + MAX_TIME <= now))) {
+                        // send
+                        int size = Math.min(concurrentQueue.size(), MAX_SIZE);
+                        List<String> data = new ArrayList<>(size);
+                        for (int i = 0; i < size; i++) {
+                            data.add(concurrentQueue.poll());
+                        }
+
+                        sendApi.sendDatas(data);
+                        lastExcuteTime = now;
+                    }
+
+                    Thread.sleep(PERIOD);
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 }

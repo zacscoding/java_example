@@ -11,5 +11,7 @@ import java.util.List;
  */
 public interface ISendApi {
 
+    public void sendData(String data);
+
     public void sendDatas(List<String> data);
 }

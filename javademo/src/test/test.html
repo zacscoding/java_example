@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+<body>
+
+<script>
+  $(function () {
+    // var text = '{"age":1,"hobby":";\\\\","job" : "name"}';
+    var text = '{"age":1,"hobby":";\\\\\\\\","job":"\\"\\t"}';
+    //text.replace('\\', '\\\\');
+    //var parse = eval('(' + text + ')');
+    var parse = JSON.parse(text);
+    console.log(parse);
+  });
+
+</script>
+
+</body>
+</html>
