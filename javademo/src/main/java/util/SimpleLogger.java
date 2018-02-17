@@ -57,6 +57,10 @@ public class SimpleLogger {
         PS.println(parseContent(content, args));
     }
 
+    public static void printlnJson(Object inst) {
+        PS.println(toJSON(inst));
+    }
+
     public static String toJSON(Object inst) {
         return TO_SRING_GSON.toJson(inst);
     }
