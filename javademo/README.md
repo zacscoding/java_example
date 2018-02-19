@@ -5,6 +5,7 @@
 - <a href="#reflection">Reflection</a>
 - <a href="#stream">Stream</a>
 - <a href="#blockingQueue">BlockingQueue : Producer, Consumer </a>
+- <a href="#tree"> Simple Tree </a>
 
 
 <div id="reflection"></div>
@@ -547,6 +548,229 @@ public class Runner {
 180209 00:04:53.924 : blockingqueue.Consumer After consum(que.take()) :: message : message4, thread : Thread-1
 180209 00:04:53.925 : blockingqueue.Consumer Before consume(que.take())...
 ```
+
+---
+
+<div id="tree"></div>
+
+## Simple Tree  
+
+Simple tree for tracing method call stack :)  
+
+> SimpleNode<T>
+
+```
+package tree;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * @author zaccoding
+ * github : https://github.com/zacscoding
+ */
+public class SimpleNode<T> {
+
+    private List<SimpleNode<T>> children;
+    private SimpleNode<T> parent = null;
+    private T data = null;
+    private int deps;
+
+    public SimpleNode(T data) {
+        this.data = data;
+    }
+
+    public SimpleNode(T data, SimpleNode<T> parent) {
+        this.data = data;
+        this.parent = parent;
+    }
+
+    public List<SimpleNode<T>> getChildren() {
+        return children;
+    }
+
+    public void setParent(SimpleNode<T> parent) {
+        this.parent = parent;
+    }
+
+    public void addChild(SimpleNode<T> child) {
+        child.setParent(this);
+
+        if (this.children == null) {
+            this.children = new ArrayList<SimpleNode<T>>();
+        }
+
+        this.children.add(child);
+    }
+
+    public SimpleNode<T> getParent() {
+        return this.parent;
+    }
+
+    public T getData() {
+        return this.data;
+    }
+
+    public void setData(T data) {
+        this.data = data;
+    }
+
+    public boolean isRoot() {
+        return (this.parent == null);
+    }
+
+    public boolean isLeaf() {
+        if (this.children == null || this.children.size() == 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public void removeParent() {
+        this.parent = null;
+    }
+
+    public int getDeps() {
+        return deps;
+    }
+
+    public void setDeps(int deps) {
+        this.deps = deps;
+    }
+}
+```
+
+> SimpleTree<T>  
+
+```
+package tree;
+
+import java.util.List;
+import java.util.function.Consumer;
+
+/**
+ * @author zaccoding
+ * github : https://github.com/zacscoding
+ */
+public class SimpleTreeImpl<T> implements SimpleTree<T> {
+
+    private SimpleNode<T> root;
+    private SimpleNode<T> current;
+
+    @Override
+    public void add(T t) {
+        if (root == null) {
+            root = new SimpleNode<>(t);
+            current = root;
+        } else {
+            if (current != null) {
+                SimpleNode<T> newNode = new SimpleNode<T>(t);
+                current.addChild(newNode);
+                current = newNode;
+            } else {
+                System.out.println("Current is null!!");
+            }
+        }
+    }
+
+    @Override
+    public void complete() {
+        if (current != null) {
+            current = current.getParent();
+        }
+    }
+
+    @Override
+    public SimpleNode<T> getRoot() {
+        return root;
+    }
+
+    @Override
+    public SimpleNode<T> getCurrentNode() {
+        return current == null ? null : current;
+    }
+
+    @Override
+    public T getCurrentData() {
+        return current == null ? null : current.getData();
+    }
+
+    @Override
+    public void traversal(Traversal type, Consumer<SimpleNode<T>> consumer) {
+        prefixTraversal(type, 0, this.root, consumer);
+    }
+
+    private void prefixTraversal(Traversal type, int depth, SimpleNode<T> node, Consumer<SimpleNode<T>> consumer) {
+        if (node == null) {
+            return;
+        }
+
+        node.setDeps(depth);
+        if (type == Traversal.PREFIX) {
+            consumer.accept(node);
+        }
+
+        List<SimpleNode<T>> childs = node.getChildren();
+
+        if (childs != null && childs.size() > 0) {
+            for (SimpleNode<T> child : childs) {
+                prefixTraversal(type, depth + 1, child, consumer);
+            }
+        }
+
+        if (type == Traversal.SUFFIX) {
+            consumer.accept(node);
+        }
+    }
+}
+```
+
+> TEST
+
+```
+    @Test
+    public void traversal() {
+        SimpleTree<String> tree = new SimpleTreeImpl<>();
+        tree.add("A");
+        tree.add("B");
+        tree.add("C");
+        // complete C
+        tree.complete();
+        tree.add("D");
+        tree.add("E");
+        // complete E
+        tree.complete();
+        // complete D
+        tree.complete();
+        // complete B
+        tree.complete();
+        tree.add("F");
+        // complete F
+        tree.complete();
+        // complete A
+        tree.complete();
+        Consumer<SimpleNode<String>> consumer = elt -> System.out.println(elt.getDeps() + " :: " + elt.getData());
+        System.out.println("dep|val");
+        tree.traversal(Traversal.PREFIX, consumer);
+    }
+```
+
+![Tree_node](./pics/[tree-1]test_node.png)  
+
+> Result  
+
+```
+dep|val
+0 :: A
+1 :: B
+2 :: C
+2 :: D
+3 :: E
+1 :: F
+```
+
+
 
 
 
