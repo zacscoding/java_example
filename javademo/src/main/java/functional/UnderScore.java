@@ -1,6 +1,7 @@
 package functional;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
@@ -12,12 +13,10 @@ import java.util.function.Supplier;
  * Like Underscore.js!!!
  *
  * @author zacconding
- * @Date 2018-02-17
- * @GitHub : https://github.com/zacscoding
  */
 public class UnderScore {
 
-    public static <T, V> List<V> map(final List<T> list, final Function<T,V> iteratee) {
+    public static <T, V> List<V> map(final List<T> list, final Function<T, V> iteratee) {
         if (isInvalid(list)) {
             return Collections.emptyList();
         }
@@ -80,6 +79,25 @@ public class UnderScore {
         }
 
         return -1;
+    }
+
+    public static <T> boolean some(final List<T> list, final Predicate<T> predicate) {
+        return find(list, predicate) != null;
+    }
+
+    // more...
+    public static <T> boolean every(final List<T> list, final Predicate<T> predicate) {
+        if (isInvalid(list, predicate)) {
+            return false;
+        }
+
+        for (int i = 0, len = list.size(); i < len; i++) {
+            if (!predicate.test(list.get(i))) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private static <T> boolean isInvalid(final List<T> list) {
