@@ -2,6 +2,7 @@ package proxy;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import util.SimpleLogger;
@@ -31,7 +32,7 @@ public class TimingDynamicInvocationHandler implements InvocationHandler {
         long start = System.nanoTime();
         Object result = methods.get(method.getName()).invoke(target, args);
         long elapsed = System.nanoTime() - start;
-        SimpleLogger.println("[## Executing {}`s {} method] finished in {} ns", target.getClass().getName(), method.getName(), elapsed);
+        SimpleLogger.println("[## Executing {}::{}] args : {}, return : {}, elapsed : {} ns", target.getClass().getName(), method.getName(), Arrays.toString(args), result, elapsed);
         return result;
     }
 }

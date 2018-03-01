@@ -1,7 +1,9 @@
 package thread.local;
 
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import java.util.stream.IntStream;
 import org.junit.Before;
@@ -15,6 +17,7 @@ import org.junit.Test;
 public class ThreadLocalTest {
 
     private Runnable runnable;
+    private int threadCount = 0;
 
     @Before
     public void setUp() {
@@ -25,16 +28,20 @@ public class ThreadLocalTest {
             ctx.setThreadId(currentThread.getId());
             ctx.setThreadName(currentThread.getName());
 
+            synchronized (this) {
+                threadCount++;
+            }
+
             // sleep
             try {
-                Thread.sleep((long) (Math.random() * 2000L) + 1000L);
+                Thread.sleep((long) (Math.random() * 2000L) + 500L);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
 
-
             // get ThreadLocal
             ThreadLocalContext ctx2 = ThreadLocalManager.clear();
+            assertNotNull(ctx2);
             assertThat(ctx2.getThreadId(), is(currentThread.getId()));
             assertThat(ctx2.getThreadName(), is(currentThread.getName()));
         };
@@ -56,6 +63,8 @@ public class ThreadLocalTest {
                 e.printStackTrace();
             }
         });
+
+        assertTrue(threadCount == size);
 
         System.out.println("Complete");
     }

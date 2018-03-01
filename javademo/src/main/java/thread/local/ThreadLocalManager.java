@@ -23,11 +23,12 @@ public class ThreadLocalManager {
     public static ThreadLocalContext clear() {
         ThreadLocalContext ctx = null;
 
+        // set null or remove
         if ((ctx = contexts.get()) != null) {
             contexts.remove();
+            // contexts.set(null);
         }
 
         return ctx;
     }
-
 }

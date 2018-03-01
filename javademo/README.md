@@ -6,7 +6,8 @@
 - <a href="#stream">Stream</a>
 - <a href="#blockingQueue">BlockingQueue : Producer, Consumer </a>
 - <a href="#tree"> Simple Tree </a>
-
+- <a href="#threadlocal">Thread local</a>
+- <a href="#proxy">Proxy</a>
 
 <div id="reflection"></div>
 
@@ -770,8 +771,229 @@ dep|val
 1 :: F
 ```
 
+---  
 
+<div id="threadlocal"></div>
 
+> ThreadLocalContext  
+
+```  
+package thread.local;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
+@Getter
+@Setter
+@ToString
+@NoArgsConstructor
+@AllArgsConstructor
+public class ThreadLocalContext {
+
+    private long threadId;
+    private String threadName;
+}
+```
+
+> ThreadLocalManager  
+
+```
+package thread.local;
+
+public class ThreadLocalManager {
+
+    private static ThreadLocal<ThreadLocalContext> contexts = new ThreadLocal<>();
+
+    public static ThreadLocalContext getOrCreate() {
+        ThreadLocalContext ctx = null;
+
+        if ((ctx = contexts.get()) == null) {
+            ctx = new ThreadLocalContext();
+            contexts.set(ctx);
+        }
+
+        return ctx;
+    }
+
+    public static ThreadLocalContext clear() {
+        ThreadLocalContext ctx = null;
+
+        // set null or remove
+        if ((ctx = contexts.get()) != null) {
+            contexts.remove();
+            // contexts.set(null);
+        }
+
+        return ctx;
+    }
+}
+
+```  
+
+> ThreadLocalTest  
+
+```
+package thread.local;
+
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+
+import java.util.stream.IntStream;
+import org.junit.Before;
+import org.junit.Test;
+
+/**
+ * @author zacconding
+ * @Date 2018-03-01
+ * @GitHub : https://github.com/zacscoding
+ */
+public class ThreadLocalTest {
+
+    private Runnable runnable;
+    private int threadCount = 0;
+
+    @Before
+    public void setUp() {
+        runnable = () -> {
+            // save ThreadLocal
+            Thread currentThread = Thread.currentThread();
+            ThreadLocalContext ctx = ThreadLocalManager.getOrCreate();
+            ctx.setThreadId(currentThread.getId());
+            ctx.setThreadName(currentThread.getName());
+
+            synchronized (this) {
+                threadCount++;
+            }
+
+            // sleep
+            try {
+                Thread.sleep((long) (Math.random() * 2000L) + 500L);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            // get ThreadLocal
+            ThreadLocalContext ctx2 = ThreadLocalManager.clear();
+            assertNotNull(ctx2);
+            assertThat(ctx2.getThreadId(), is(currentThread.getId()));
+            assertThat(ctx2.getThreadName(), is(currentThread.getName()));
+        };
+    }
+
+    @Test
+    public void test() {
+        int size = 1000;
+        Thread[] threads = new Thread[size];
+        IntStream.range(0, size).forEach(i -> {
+            threads[i] = new Thread(runnable);
+            threads[i].start();
+        });
+
+        IntStream.range(0, size).forEach(i -> {
+            try {
+                threads[i].join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+
+        assertTrue(threadCount == size);
+
+        System.out.println("Complete");
+    }
+}
+```
+
+---  
+
+<div id="proxy"></div>
+
+> TimingDynamicInvocationHandler
+
+```
+package proxy;
+
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
+import util.SimpleLogger;
+
+public class TimingDynamicInvocationHandler implements InvocationHandler {
+
+    private Object target;
+
+    private final Map<String, Method> methods = new HashMap<>();
+
+    public TimingDynamicInvocationHandler(Object target) {
+        this.target = target;
+        for (Method method : target.getClass().getDeclaredMethods()) {
+            this.methods.put(method.getName(), method);
+        }
+    }
+
+    @Override
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        long start = System.nanoTime();
+        Object result = methods.get(method.getName()).invoke(target, args);
+        long elapsed = System.nanoTime() - start;
+        SimpleLogger.println("[## Executing {}`s {} method] finished in {} ns", target.getClass().getName(), method.getName(), elapsed);
+        return result;
+    }
+}
+```  
+
+> DynamicProxyTest  
+
+```
+package proxy;
+
+import java.lang.reflect.Proxy;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import org.junit.Test;
+import util.SimpleLogger;
+
+public class DynamicProxyTest {
+
+    @Test
+    public void mapTest() {
+        Map mapProxyInstance = (Map) Proxy.newProxyInstance(DynamicProxyTest.class.getClassLoader(), new Class[]{Map.class}, new TimingDynamicInvocationHandler(new HashMap<>()));
+        mapProxyInstance.put("TestKey", "TestValue");
+        mapProxyInstance.clear();
+    }
+
+    @Test
+    public void mapTestWithLambda() {
+        Map target = new HashMap<>();
+        Map mapProxyInstance = (Map) Proxy.newProxyInstance(DynamicProxyTest.class.getClassLoader(), new Class[]{Map.class}, (proxy, method, args) -> {
+            long start = System.nanoTime();
+            Object result = method.invoke(target, args);
+            long elapsed = System.nanoTime() - start;
+            SimpleLogger.println("[## Executing {}::{}] args : {}, return : {}, elapsed : {} ns", target.getClass().getName(), method.getName(), Arrays.toString(args), result, elapsed);
+            return result;
+        });
+
+        mapProxyInstance.put("TestKey", "TestValue");
+        mapProxyInstance.size();
+    }
+}
+
+```
+
+> Result  
+
+```
+[## Executing java.util.HashMap::put] args : [TestKey, TestValue], return : null, elapsed : 14725 ns
+[## Executing java.util.HashMap::clear] args : null, return : null, elapsed : 10573 ns
+[## Executing java.util.HashMap::put] args : [TestKey, TestValue], return : null, elapsed : 26431 ns
+[## Executing java.util.HashMap::size] args : null, return : 1, elapsed : 9439 ns
+```
 
 
 
