@@ -8,6 +8,7 @@
 - <a href="#tree"> Simple Tree </a>
 - <a href="#threadlocal">Thread local</a>
 - <a href="#proxy">Proxy</a>
+- <a href="#bitwise-operation">Bitwise operation</a>
 
 <div id="reflection"></div>
 
@@ -993,6 +994,55 @@ public class DynamicProxyTest {
 [## Executing java.util.HashMap::clear] args : null, return : null, elapsed : 10573 ns
 [## Executing java.util.HashMap::put] args : [TestKey, TestValue], return : null, elapsed : 26431 ns
 [## Executing java.util.HashMap::size] args : null, return : 1, elapsed : 9439 ns
+```  
+
+---  
+
+## Bitwise operation  
+
+[source-code](https://github.com/zacscoding/java_example/blob/master/javademo/src/test/java/util/BitTest.java)  
+[reference : http://fendee.egloos.com/9022534]  
+
+```
+================ 논리곱 AND(&) ================
+각 비트 b1 and b2 가 1이면 1, 아니면 0
+a = 160, b=245 ==> a&b
+10100000
+11110101
+10100000
+================ 논리합 OR(|) ================
+각 비트 b1 or b2가 1이면 1, 아니면 0
+a = 160, b=245 ==> a|b
+10100000
+11110101
+11110101
+================ 베타적 논리합 XOR(|) ================
+각 비트가 다르면 1, 아니면 0
+a = 160, b=245 ==> a^b
+10100000
+11110101
+01010101
+================ 1의 보수 표현 NOT (~) ================
+각 비트를 반전시킨 값
+a = 160 ==> ~a
+00000000000000000000000010100000
+11111111111111111111111101011111
+================ 왼쪽 쉬프트 연산자 (<<) ================
+178 >> 2
+178 값을 왼쪽으로 2비트 시프트
+0010110010
+1011001000
+================ 오른쪽 쉬프트 연산자 (>>) ================
+-2147483648 >> 2
+-2147483648 값을 오른쪽으로 2비트 시프트
+왼쪽 빈 값은 a값의 최초 첫째자리 값과 동일 한 값으로 채워짐
+10000000000000000000000000000000
+11100000000000000000000000000000
+================ 논리 오른쪽 시프트 연산자 (>>>) ================
+-2147483648 >> 2
+-2147483648 값을 오른쪽으로 2비트 시프트 + 앞쪽 비트를 무조건 0으로
+10000000000000000000000000000000
+00100000000000000000000000000000
 ```
 
 
