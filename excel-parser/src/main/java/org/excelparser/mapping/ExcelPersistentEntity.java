@@ -18,6 +18,8 @@ public class ExcelPersistentEntity {
     private Field field;
     // invoke method(setter, getter)
     private Method[] methods;
+    // setter, getter method name
+    private String[] methodsName;
     // 셀 이름
     private String cellName;
     // 정규식
@@ -102,5 +104,13 @@ public class ExcelPersistentEntity {
 
     public void setInvoker(Class<?> invoker) {
         this.invoker = invoker;
+    }
+
+    public String[] getMethodsName() {
+        return methodsName;
+    }
+
+    public void setMethodsName(String[] methodsName) {
+        this.methodsName = methodsName;
     }
 }
