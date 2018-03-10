@@ -5,6 +5,7 @@
 ### Index  
 
 - <a href="#java.util.HashMap"> java/util/HashMap </a>  
+- <a href="#java.util.ArrayList">java/util/ArrayList</a>
 
 
 ---  
@@ -86,3 +87,126 @@ public int indexOf(Object key) {
   return (table.length - 1) & h;
 }
 ```  
+
+
+---  
+
+<div id="java.util.ArrayList"></div>  
+
+#### java.util.ArrayList in java8  
+
+> 동적 배열  
+
+```
+...
+private static final int DEFAULT_CAPACITY = 10;
+...
+private static final Object[] DEFAULTCAPACITY_EMPTY_ELEMENTDATA = {};
+
+...
+
+public ArrayList() {
+    // default 생성자로 인스턴스 생성시 empty array 할당
+    this.elementData = DEFAULTCAPACITY_EMPTY_ELEMENTDATA;
+}  
+
+...
+
+public boolean add(E e) {
+    ensureCapacityInternal(size + 1);  // Increments modCount!!
+    elementData[size++] = e;
+    return true;
+}
+
+...
+
+private void ensureCapacityInternal(int minCapacity) {
+    // empty array이면 minCapacity = Math.max(10,1) = 10
+    if (elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA) {
+        minCapacity = Math.max(DEFAULT_CAPACITY, minCapacity);
+    }
+
+    ensureExplicitCapacity(minCapacity);
+}
+
+...
+
+private void ensureExplicitCapacity(int minCapacity) {
+    modCount++;
+
+    // overflow-conscious code
+    if (minCapacity - elementData.length > 0)
+        grow(minCapacity);
+}
+
+...
+
+private void grow(int minCapacity) {
+    // overflow-conscious code
+    int oldCapacity = elementData.length;
+    int newCapacity = oldCapacity + (oldCapacity >> 1);
+    if (newCapacity - minCapacity < 0)
+        newCapacity = minCapacity;
+    if (newCapacity - MAX_ARRAY_SIZE > 0)
+        newCapacity = hugeCapacity(minCapacity);
+    // minCapacity is usually close to size, so this is a win:
+    elementData = Arrays.copyOf(elementData, newCapacity);
+}
+
+```  
+
+1. Default 생성자로 인스턴스를 생성 + add() 호출  
+=> ensureCapacityInternal() 메소드에서 ensureExplicitCapacity()의 매개변수 minCapacity를  
+10으로 배열 할당  
+=> ensureExplicitCapacity()의 if(10 - 0 > 0) == true이므로 grow  
+=> newCapacity == 0 + (0 >> 1) == 0 이므로 if(newCapacity - minCapacity) == true  
+=> 사이즈가 10인 배열로 할당  
+
+2. 현재 배열의 elementData.length == 10, add() 10번째 호출  
+=> add() => ensureExplicitCapacity(11) 호출  
+=> ensureExplicitCapacity() 메소드에서 minCapacity(11) - elts.length(10) > 0 므로 grow(11) 호출  
+=> oldCapacity는 10, newCapacity = 15이므로 위의 if문은 모두 false & length가 15인 배열로 재할당  
+=> ArrayList의 동적 배열은 newCapacity = (oldCapacity) + (oldCapacity >> 1) 만큼 증가  
+```
+i.e 10 => 15 || 11 => 16 || 12 => 18 || 13 => 19 || 14 => 21 || 15 => 22 || 16 => 24 || 17 => 25 || 18 => 27 || 19 => 28 ...
+기본 생성자를 이용하면,  
+10 => 15 || 15 => 22 || 22 => 33 || 33 => 49 || 49 => 73 || 73 => 109 || 109 => 163 || 163 => 244 || 244 => 366 || 366 => 549 ...
+```  
+
+3. 재할당 시 상수(M)만큼 늘리면? ```e.g : newCapacity = oldCapacity + M```  
+ref : 알고리즘 문제해결 전략 책  
+가정 : 텅빈 배열로 시작해 N번 add() 호출 & 동적 할당 M(상수)씩  
+=> 재할당의 수 K == O(N/M)  
+-> M이 상수므로 N이 무한히 커지면, K == O(N)  
+=> 재할당마다 복사하는 수 M, 2M, ... KM  
+-> (K)(K+1)(M) / 2 == O(K^2) == O(N^2)  
+결과적으로 N번의 add()하는데 O(N^2)의 시간이 걸림  
+(즉 평균적으로 O(N^2)/N == O(N))  
+
+4. 상수 시간에 add()를 구현하기 위해서 현재 원소에 비례해서 배열을 증가  
+have to proof of (An+1 = An + (An / 2))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>  
+---
