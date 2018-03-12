@@ -1,7 +1,7 @@
-package org.excelparser.SampleDomain;
+package org.excelparser.domain;
+
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -13,12 +13,8 @@ import org.excelparser.annotation.ExcelField;
 import org.excelparser.annotation.ExcelFieldType;
 
 /**
- * @author zaccoding
- * github : https://github.com/zacscoding
+ * @author zaccoding github : https://github.com/zacscoding
  */
-@Getter
-@Setter
-@ToString
 public class Person {
 
     @ExcelField(cellOrder = 2, cellValue = "age")
@@ -64,29 +60,54 @@ public class Person {
         }
     }
 
-
-    public static void main(String[] args) {
-        System.out.println("getter...........");
-        Person p1 = new Person();
-        p1.setHobbies(Arrays.asList("test1", "test2"));
-        System.out.println(p1.getHobbiesValue());
-        p1.setHobbies(null);
-        System.out.println(p1.getHobbiesValue());
-        p1.setHobbies(Arrays.asList("test1"));
-        System.out.println(p1.getHobbiesValue());
-        p1.setHobbies(Collections.emptyList());
-        System.out.println(p1.getHobbiesValue());
-        System.out.println("setter...........");
-        Person p2 = new Person();
-        p2.setHobbies(null);
-        System.out.println(p2.getHobbiesValue());
-        p2.setHobbiesValue("[test1,test2]");
-        System.out.println(p2.getHobbiesValue());
-        p2.setHobbiesValue("[]");
-        System.out.println(p2.getHobbiesValue());
-        p2.setHobbiesValue("[test1,test2)");
-        System.out.println(p2.getHobbiesValue());
+    public int getAge() {
+        return age;
     }
 
+    public void setAge(int age) {
+        this.age = age;
+    }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public List<String> getHobbies() {
+        return hobbies;
+    }
+
+    public void setHobbies(List<String> hobbies) {
+        this.hobbies = hobbies;
+    }
+
+    public Address getAddress() {
+        return address;
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
+    }
+
+    public Company getCompany() {
+        return company;
+    }
+
+    public void setCompany(Company company) {
+        this.company = company;
+    }
+
+    @Override
+    public String toString() {
+        return "Person{" +
+            "age=" + age +
+            ", name='" + name + '\'' +
+            ", hobbies=" + hobbies +
+            ", address=" + address +
+            ", company=" + company +
+            '}';
+    }
 }

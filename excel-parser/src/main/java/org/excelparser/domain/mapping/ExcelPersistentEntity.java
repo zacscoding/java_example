@@ -1,15 +1,14 @@
-package org.excelparser.mapping;
+package org.excelparser.domain.mapping;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import lombok.ToString;
 import org.excelparser.annotation.ExcelFieldType;
 
 /**
- * @author zaccoding
- * github : https://github.com/zacscoding
+ * @author zaccoding github : https://github.com/zacscoding
  */
-@ToString
 public class ExcelPersistentEntity {
 
     // cell order
@@ -112,5 +111,20 @@ public class ExcelPersistentEntity {
 
     public void setMethodsName(String[] methodsName) {
         this.methodsName = methodsName;
+    }
+
+    @Override
+    public String toString() {
+        return "ExcelPersistentEntity{" +
+            "cellOrder=" + cellOrder +
+            ", field=" + field +
+            ", methods=" + Arrays.toString(methods) +
+            ", methodsName=" + Arrays.toString(methodsName) +
+            ", cellName='" + cellName + '\'' +
+            ", regex='" + regex + '\'' +
+            ", notNull=" + notNull +
+            ", fieldType=" + fieldType +
+            ", invoker=" + invoker +
+            '}';
     }
 }
