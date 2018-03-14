@@ -4,8 +4,15 @@
 
 ### Index  
 
+**java.util**  
+
 - <a href="#java.util.HashMap"> java/util/HashMap </a>  
 - <a href="#java.util.ArrayList">java/util/ArrayList</a>
+
+
+**java.lang**  
+- <a href="#java.lang.ThreadLocal">java/lang/ThreadLocal</a>
+
 
 
 ---  
@@ -184,7 +191,118 @@ ref : 알고리즘 문제해결 전략 책
 (즉 평균적으로 O(N^2)/N == O(N))  
 
 4. 상수 시간에 add()를 구현하기 위해서 현재 원소에 비례해서 배열을 증가  
-have to proof of (An+1 = An + (An / 2))
+have to proof of (An+1 = An + (An / 2))  
+
+---
+
+<div id="java.lang.ThreadLocal"></div>
+
+#### java.lang.ThreadLocal in java8   
+
+**check setting thread local**  
+
+> java.lang.ThreadLocal  
+
+```
+public class ThreadLocal<T> {
+  ...
+  public void set(T value) {
+    Thread t = Thread.currentThread();
+    ThreadLocalMap map = getMap(t);
+    if (map != null)
+        map.set(this, value);
+    else
+        createMap(t, value);
+  }
+  ...
+  void createMap(Thread t, T firstValue) {
+    t.threadLocals = new ThreadLocalMap(this, firstValue);
+  }
+  ...  
+
+  static class ThreadLocalMap {
+    ...
+    private void set(ThreadLocal<?> key, Object value) {
+      ...
+    }
+  }
+
+}
+```  
+
+> java.lang.Thread  
+
+```
+public class Thread implements Runnable {
+  ...  
+  ThreadLocal.ThreadLocalMap threadLocals = null;
+  ...
+}
+```  
+
+1. ThreadLocal.set(XXX)호출  
+2. 현재 Thread의 ThreadLocal.ThreadLocalMap threadLocals를 가져온다  
+(없으면 create)  
+3. ThreadLocal의 static class인 ThreadLocalMap은 ThreadLocal을 key로  
+Entry를 value로 값는다  
+
+
+```
+public class ThreadLocal<T> {
+  ...
+  public T get() {
+    Thread t = Thread.currentThread();
+    ThreadLocalMap map = getMap(t);
+    if (map != null) {
+        ThreadLocalMap.Entry e = map.getEntry(this);
+        if (e != null) {
+            @SuppressWarnings("unchecked")
+            T result = (T)e.value;
+            return result;
+        }
+    }
+    return setInitialValue();
+  }
+
+  ...
+
+  ThreadLocalMap getMap(Thread t) {
+    return t.threadLocals;
+  }
+
+  ...
+
+  private T setInitialValue() {
+    T value = initialValue();
+    Thread t = Thread.currentThread();
+    ThreadLocalMap map = getMap(t);
+    if (map != null)
+        map.set(this, value);
+    else
+        createMap(t, value);
+    return value;
+  }
+
+  protected T initialValue() {
+    return null;
+  }
+
+  ...    
+}
+```  
+
+1. ThreadLocal.get() 호출  
+2. 현재 Thread의 ThreadLocalMap을 가져옴  
+  2-1. ThreadLocalMap이 존재하면  
+  => ThreadLocalMap의 value인 Entry로 저장 된 값 반환  
+  2-2. ThreadLocalMap이 존재하지 않으면
+  => ThreadLocal 인스턴스를 key로 하는 ThreadLocalMap을 생성하여  
+  Entry의 value를 null로 초기화  
+
+
+
+
+
 
 
 
