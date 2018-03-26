@@ -9,6 +9,7 @@
 - <a href="#threadlocal">Thread local</a>
 - <a href="#proxy">Proxy</a>
 - <a href="#bitwise-operation">Bitwise operation</a>
+- <a href="#modify-annotation>Modify Annotation Value </a>
 
 <div id="reflection"></div>
 
@@ -1044,6 +1045,123 @@ a = 160 ==> ~a
 10000000000000000000000000000000
 00100000000000000000000000000000
 ```
+
+---  
+
+<div id="modify-annotation"></div>  
+
+## Modify Annotation Value
+
+
+> ModifyAnnotationValue.java  
+
+```aidl
+public class ModifyAnnotationValue {
+
+    /**
+     * valid in java 8
+     */
+    public static boolean modifyAnnotationValue(Class<?> target, Class<? extends Annotation> targetAnnotation, Annotation targetValue) {
+        try {
+            Method method = Class.class.getDeclaredMethod("annotationData");
+            method.setAccessible(true);
+
+            Object annotationData = method.invoke(target);
+
+            Field annotations = annotationData.getClass().getDeclaredField("annotations");
+            annotations.setAccessible(true);
+
+            Map<Class<? extends Annotation>, Annotation> map = (Map<Class<? extends Annotation>, Annotation>) annotations.get(annotationData);
+            map.put(targetAnnotation, targetValue);
+
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+}
+```  
+
+> Test  
+
+```
+package annotation;
+
+import static org.junit.Assert.assertTrue;
+
+import java.lang.annotation.Annotation;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import org.junit.Test;
+import util.ModifyAnnotationValue;
+import util.SimpleLogger;
+
+public class ChangeAnnotationValueTest {
+
+    @Test
+    public void modifyAnnotationTest() {
+        ChangeValueAnnotation origin = ChangeAnnotationTestDomain.class.getAnnotation(ChangeValueAnnotation.class);
+        SimpleLogger.build().appendRepeat(10, "==").append(" origin ").appendRepeat(10, "==").newLine()
+                    .appendln("value() : {} , intValue() : {}", origin.value(), origin.intValue()).flush();
+
+        ChangeValueAnnotation modify = new ChangeValueAnnotation() {
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return origin.annotationType();
+            }
+
+            @Override
+            public String value() {
+                return "modified value";
+            }
+
+            @Override
+            public int intValue() {
+                return origin.intValue();
+            }
+        };
+
+        assertTrue(ModifyAnnotationValue.modifyAnnotationValue(ChangeAnnotationTestDomain.class, ChangeValueAnnotation.class, modify));
+
+        ChangeValueAnnotation newAnnotation = ChangeAnnotationTestDomain.class.getAnnotation(ChangeValueAnnotation.class);
+        SimpleLogger.build().appendRepeat(10, "==").append(" new annotation ").appendRepeat(10, "==").newLine()
+                    .appendln("value() : {} , intValue() : {}", newAnnotation.value(), newAnnotation.intValue()).flush();
+    }
+}
+
+@ChangeValueAnnotation
+class ChangeAnnotationTestDomain {
+
+    private String name;
+    private int age;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+}
+
+@Retention(RetentionPolicy.RUNTIME)
+@interface ChangeValueAnnotation {
+
+    String value() default "default-value";
+
+    int intValue() default 1;
+}
+```  
+
+> Result (Console)  
+
+```
+==================== origin ====================
+value() : default-value , intValue() : 1
+==================== new annotation ====================
+value() : modified value , intValue() : 1
+```  
 
 
 

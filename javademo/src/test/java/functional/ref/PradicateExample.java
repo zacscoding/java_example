@@ -18,7 +18,7 @@ public class PradicateExample {
         SimpleLogger.println("Test 1 : {} , 0 : {}, -1 : {}", isPositive.test(1), isPositive.test(0), isPositive.test(-1));
         List<Integer> numbers = Arrays.asList(-1, -2, 0, 10, 20, 3);
         List<Integer> positives = filter(numbers, isPositive);
-        SimpleLogger.printlnJson(positives);
+        SimpleLogger.printJSONPretty(positives);
     }
 
     private <T> List<T> filter(final List<T> list, final Predicate<T> filter) {
