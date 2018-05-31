@@ -6,11 +6,8 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,7 +16,6 @@ import lombok.Setter;
 import lombok.ToString;
 import org.junit.Before;
 import org.junit.Test;
-import util.SimpleLogger;
 
 /**
  * @author zacconding

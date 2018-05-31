@@ -1,7 +1,6 @@
 package util;
 
 import java.util.LinkedHashMap;
-import java.util.Map;
 import org.junit.Test;
 
 /**
@@ -20,7 +19,7 @@ public class LinkedMapTest {
         map.put("key4", "value4");
 
         map.forEach((k, v) -> {
-            SimpleLogger.println("Key : {}, Value : {}", k, v);
+            SimpleLoggers.println("Key : {}, Value : {}", k, v);
         });
     }
 }

@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.stream.Stream;
 import org.junit.Before;
 import org.junit.Test;
-import util.SimpleLogger;
+import util.SimpleLoggers;
 
 /**
  * @author zacconding
@@ -41,7 +41,7 @@ public class StreamDefault {
     public void parallelStream() {
         Stream<String> parallelStream = defaultList.parallelStream();
         parallelStream.forEach(name -> {
-            SimpleLogger.println("value : {}, current thread name : {}", name, Thread.currentThread().getName());
+            SimpleLoggers.println("value : {}, current thread name : {}", name, Thread.currentThread().getName());
         });
     }
 

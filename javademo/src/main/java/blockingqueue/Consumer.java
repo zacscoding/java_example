@@ -1,7 +1,7 @@
 package blockingqueue;
 
 import java.util.concurrent.BlockingQueue;
-import util.SimpleLogger;
+import util.SimpleLoggers;
 
 /**
  * @author zacconding
@@ -20,13 +20,13 @@ public class Consumer implements Runnable {
     public void run() {
         try {
             while (true) {
-                SimpleLogger.info("Before consume(que.take())...");
+                SimpleLoggers.info("Before consume(que.take())...");
                 String msg = que.take();
-                SimpleLogger.info("After consum(que.take()) :: message : {}, thread : {}", msg, Thread.currentThread().getName());
+                SimpleLoggers.info("After consum(que.take()) :: message : {}, thread : {}", msg, Thread.currentThread().getName());
                 Thread.sleep(10L);
             }
         } catch (Exception e) {
-            SimpleLogger.error("error", e);
+            SimpleLoggers.error("error", e);
         }
     }
 }

@@ -72,7 +72,8 @@ public class HashMapTest {
         endTime = System.nanoTime();
         times[1] = endTime + startTime;
         long diff = times[0] - times[1];
-        SimpleLogger.println("## data : {} // default : {}ns // initialized : {}ns // diff : {}ns, {}ms", dataCnt, times[0], times[1], diff, TimeUnit.NANOSECONDS.toMillis(diff));
+        SimpleLoggers
+            .println("## data : {} // default : {}ns // initialized : {}ns // diff : {}ns, {}ms", dataCnt, times[0], times[1], diff, TimeUnit.NANOSECONDS.toMillis(diff));
     }
 
     /* ========================== RESULT ==========================
@@ -123,7 +124,8 @@ public class HashMapTest {
 
         times[1] = endTime + startTime;
         long diff = times[0] - times[1];
-        SimpleLogger.println("## data : {} // default : {}ns // initialized : {}ns // diff : {}ns, {}ms", dataCnt, times[0], times[1], diff, TimeUnit.NANOSECONDS.toMillis(diff));
+        SimpleLoggers
+            .println("## data : {} // default : {}ns // initialized : {}ns // diff : {}ns, {}ms", dataCnt, times[0], times[1], diff, TimeUnit.NANOSECONDS.toMillis(diff));
     }
 
     public int initializeCapacity(int expectedMaximalNumber) {

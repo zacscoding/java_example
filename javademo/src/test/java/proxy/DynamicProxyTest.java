@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Test;
-import util.SimpleLogger;
+import util.SimpleLoggers;
 
 /**
  * @author zacconding
@@ -28,7 +28,8 @@ public class DynamicProxyTest {
             long start = System.nanoTime();
             Object result = method.invoke(target, args);
             long elapsed = System.nanoTime() - start;
-            SimpleLogger.println("[## Executing {}::{}] args : {}, return : {}, elapsed : {} ns", target.getClass().getName(), method.getName(), Arrays.toString(args), result, elapsed);
+            SimpleLoggers
+                .println("[## Executing {}::{}] args : {}, return : {}, elapsed : {} ns", target.getClass().getName(), method.getName(), Arrays.toString(args), result, elapsed);
             return result;
         });
 

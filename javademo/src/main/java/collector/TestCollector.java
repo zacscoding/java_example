@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import util.SimpleLogger;
+import util.SimpleLoggers;
 
 /**
  * Test Collector
@@ -67,13 +67,13 @@ public class TestCollector {
 
             @Override
             public void sendDatas(List<String> data) {
-                SimpleLogger.println("@@ Send data... size : {}", (data == null ? 0 : data.size()));
+                SimpleLoggers.println("@@ Send data... size : {}", (data == null ? 0 : data.size()));
                 StringBuilder sb = new StringBuilder();
                 if (data != null) {
                     data.forEach(d -> {
                         sb.append(d).append(" ");
                     });
-                    SimpleLogger.println(sb.toString());
+                    SimpleLoggers.println(sb.toString());
                 }
             }
         };
@@ -117,7 +117,7 @@ public class TestCollector {
         public void run() {
             try {
                 while (true) {
-                    SimpleLogger.info("## Check que...");
+                    SimpleLoggers.info("## Check que...");
                     long now = System.currentTimeMillis();
                     if ((!concurrentQueue.isEmpty()) && ((concurrentQueue.size() >= MAX_SIZE) || (lastExcuteTime + MAX_TIME <= now))) {
                         // send

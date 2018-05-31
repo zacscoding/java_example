@@ -7,7 +7,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import org.junit.Test;
 import util.ModifyAnnotationValue;
-import util.SimpleLogger;
+import util.SimpleLoggers;
 
 /**
  * @author zacconding
@@ -21,8 +21,8 @@ public class ChangeAnnotationValueTest {
         // ==================== origin ====================
         // value() : default-value , intValue() : 1
         ChangeValueAnnotation origin = ChangeAnnotationTestDomain.class.getAnnotation(ChangeValueAnnotation.class);
-        SimpleLogger.build().appendRepeat(10, "==").append(" origin ").appendRepeat(10, "==").newLine()
-                    .appendln("value() : {} , intValue() : {}", origin.value(), origin.intValue()).flush();
+        SimpleLoggers.build().appendRepeat(10, "==").append(" origin ").appendRepeat(10, "==").newLine()
+                     .appendln("value() : {} , intValue() : {}", origin.value(), origin.intValue()).flush();
 
         ChangeValueAnnotation modify = new ChangeValueAnnotation() {
             @Override
@@ -46,8 +46,8 @@ public class ChangeAnnotationValueTest {
         // ==================== new annotation ====================
         // value() : modified value , intValue() : 1
         ChangeValueAnnotation newAnnotation = ChangeAnnotationTestDomain.class.getAnnotation(ChangeValueAnnotation.class);
-        SimpleLogger.build().appendRepeat(10, "==").append(" new annotation ").appendRepeat(10, "==").newLine()
-                    .appendln("value() : {} , intValue() : {}", newAnnotation.value(), newAnnotation.intValue()).flush();
+        SimpleLoggers.build().appendRepeat(10, "==").append(" new annotation ").appendRepeat(10, "==").newLine()
+                     .appendln("value() : {} , intValue() : {}", newAnnotation.value(), newAnnotation.intValue()).flush();
     }
 }
 

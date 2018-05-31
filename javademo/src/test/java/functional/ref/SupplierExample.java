@@ -3,7 +3,7 @@ package functional.ref;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import org.junit.Test;
-import util.SimpleLogger;
+import util.SimpleLoggers;
 
 /**
  * source-code : https://github.com/Kevin-Lee/modern-java-untold/blob/master/src/main/java/cc/kevinlee/modernjava/e05_supplier/SupplierExamples.java
@@ -43,7 +43,7 @@ public class SupplierExample {
      * @return 항상 "Kevin"만 리턴
      */
     private String getVeryExpensiveValue() {
-        SimpleLogger.println("getVeryExpensiveValue() is called Thread id : {}, name : {}", Thread.currentThread().getId(), Thread.currentThread().getName());
+        SimpleLoggers.println("getVeryExpensiveValue() is called Thread id : {}, name : {}", Thread.currentThread().getId(), Thread.currentThread().getName());
         try {
             TimeUnit.SECONDS.sleep(3);
         } catch (InterruptedException e) {

@@ -1,38 +1,37 @@
 package util;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import java.io.PrintStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- * SimpleLogger for dev
- *
  * @author zacconding
- * @Date 2018-05-31
+ * @Date 2018-01-14
  * @GitHub : https://github.com/zacscoding
  */
-public class SimpleLogger {
-    /** Statics */
-    private static String NEW_LINE;
+
+/**
+ * Simple Logger for dev...
+ *
+ * @author zacconding
+ * @Date 2018-01-14
+ * @GitHub : https://github.com/zacscoding
+ */
+public class SimpleLoggers {
+
+    public static String NEW_LINE;
     private static PrintStream PS;
-    private static SimpleDateFormat SIMPLE_DATE_FORMAT;
+    public static SimpleDateFormat SIMPLE_DATE_FORMAT;
+
     static {
         NEW_LINE = System.getProperty("line.separator");
         if (NEW_LINE == null || NEW_LINE.length() == 0) {
             NEW_LINE = "\n";
         }
         SIMPLE_DATE_FORMAT = new SimpleDateFormat("yyMMdd HH:mm:ss.SSS");
-        // can change PrintStream here
         PS = System.out;
-    }
-    public static void setNewLine(String newLine) {
-        NEW_LINE = newLine;
-    }
-    public static void setPS(PrintStream PS) {
-        SimpleLogger.PS = PS;
-    }
-    public static void setSimpleDateFormat(SimpleDateFormat simpleDateFormat) {
-        SIMPLE_DATE_FORMAT = simpleDateFormat;
     }
 
     public static void print(String message, Object... args) {
@@ -106,6 +105,30 @@ public class SimpleLogger {
         return sb.toString();
     }
 
+    public static String toJson(Object inst) {
+        return toJson(new Gson(), inst);
+    }
+
+    public static String toJsonWithPretty(Object inst) {
+        return toJson(new GsonBuilder().setPrettyPrinting().create(), inst);
+    }
+
+    public static void printJSON(Object inst) {
+        PS.println(toJson(inst));
+    }
+
+    public static void printJSONPretty(Object inst) {
+        PS.println(toJsonWithPretty(inst));
+    }
+
+    public static String toJson(Gson gson, Object inst) {
+        if (gson == null || inst == null) {
+            return "{}";
+        }
+
+        return gson.toJson(inst);
+    }
+
     private static void parseContent(StringBuilder sb, String content, Object[] args) {
         if (args == null || args.length == 0 || content == null || content.length() < 2) {
             sb.append(content);
@@ -137,59 +160,34 @@ public class SimpleLogger {
         return Thread.currentThread().getStackTrace()[3].getClassName();
     }
 
-    private static final class LoggerContextManager {
-        private static ThreadLocal<SimpleLogger> contexts = new ThreadLocal<>();
 
-        public static SimpleLogger getOrCreate() {
-            SimpleLogger logger = null;
-
-            if((logger = contexts.get()) == null) {
-                logger = new SimpleLogger();
-                contexts.set(logger);
-            }
-
-            return logger;
-        }
-
-        public static SimpleLogger clear() {
-            SimpleLogger logger = null;
-
-            if((logger = contexts.get()) != null) {
-                contexts.set(null);
-            }
-
-            return logger;
-        }
+    public static SimpleLoggers build() {
+        return new SimpleLoggers();
     }
 
-
-    /** Instance */
     private StringBuilder sb;
-    private SimpleLogger() {
+
+    private SimpleLoggers() {
         sb = new StringBuilder();
     }
 
-    public static SimpleLogger build() {
-        return LoggerContextManager.getOrCreate();
-    }
-
-    public SimpleLogger append(String message, Object... args) {
+    public SimpleLoggers append(String message, Object... args) {
         parseContent(this.sb, message, args);
         return this;
     }
 
-    public SimpleLogger appendln(String message, Object... args) {
+    public SimpleLoggers appendln(String message, Object... args) {
         parseContent(this.sb, message, args);
         sb.append(NEW_LINE);
         return this;
     }
 
-    public SimpleLogger appendTab(String message, Object... args) {
+    public SimpleLoggers appendTab(String message, Object... args) {
         appendTab(1, message, args);
         return this;
     }
 
-    public SimpleLogger appendTab(int tabSize, String message, Object... args) {
+    public SimpleLoggers appendTab(int tabSize, String message, Object... args) {
         parseContent(this.sb, message, args);
 
         if (tabSize > 0) {
@@ -201,7 +199,7 @@ public class SimpleLogger {
         return this;
     }
 
-    public SimpleLogger appendRepeat(int repeat, String message, Object... args) {
+    public SimpleLoggers appendRepeat(int repeat, String message, Object... args) {
         if (repeat > 0) {
             for (int i = 0; i < repeat; i++) {
                 parseContent(this.sb, message, args);
@@ -211,7 +209,7 @@ public class SimpleLogger {
         return this;
     }
 
-    public SimpleLogger newLine() {
+    public SimpleLoggers newLine() {
         sb.append(NEW_LINE);
         return this;
     }
@@ -231,22 +229,15 @@ public class SimpleLogger {
         return sb == null ? "" : sb.toString();
     }
 
-
-    @Override
-    protected void finalize() throws Throwable {
-        super.finalize();
-        LoggerContextManager.clear();
-    }
-
     /**
      * Simple Test from console...
      */
     public static void main(String[] args) {
         // this is print...this is println...
-        SimpleLogger.print("this is print...");
-        SimpleLogger.println("this is println...");
+        SimpleLoggers.print("this is print...");
+        SimpleLoggers.println("this is println...");
         // arg1 : 1, not arg1 : { , arg2 : test, not arg2 : }
-        SimpleLogger.println("arg1 : {}, not arg1 : { , arg2 : {}, not arg2 : }", 1, "test");
+        SimpleLoggers.println("arg1 : {}, not arg1 : { , arg2 : {}, not arg2 : }", 1, "test");
 
         // 180322 23:14:16.513 [ERROR] SimpleLogger : test exception
         // java.lang.RuntimeException
@@ -257,26 +248,21 @@ public class SimpleLogger {
                 throw new RuntimeException();
             }
         } catch (Exception e) {
-            SimpleLogger.error("test exception", e);
+            SimpleLoggers.error("test exception", e);
         }
 
         // this is append..this is appendln...
         // arg1 : 1, not arg1 : { , arg2 : test, not arg2 : }
         // after new line..
-        SimpleLogger.build().append("this is append..").appendln("this is appendln...")
+        SimpleLoggers.build().append("this is append..").appendln("this is appendln...")
                      .append("arg1 : {}, not arg1 : { , arg2 : {}, not arg2 : }", 1, "test").newLine()
                      .appendln("after new line..").flush();
 
         // tab1	tab2
-        SimpleLogger.build().appendTab("tab1").appendln("tab2").flush();
+        SimpleLoggers.build().appendTab("tab1").appendln("tab2").flush();
         // tab1			tab2
-        SimpleLogger.build().appendTab(3, "tab1").appendln("tab2").flush();
+        SimpleLoggers.build().appendTab(3, "tab1").appendln("tab2").flush();
         // ==================== test ====================
-        SimpleLogger.build().appendRepeat(20, "=").append(" test ").appendRepeat(20, "=").newLine().flush();
-
-        // ## Check logger inst => is same instance ? : true
-        SimpleLogger logger1 = SimpleLogger.build();
-        SimpleLogger logger2 = SimpleLogger.build();
-        System.out.println("## Check logger inst => is same instance ? : " + (logger1 == logger2));
+        SimpleLoggers.build().appendRepeat(20, "=").append(" test ").appendRepeat(20, "=").flush();
     }
 }

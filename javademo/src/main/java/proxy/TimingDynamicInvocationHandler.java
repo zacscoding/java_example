@@ -5,7 +5,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import util.SimpleLogger;
+import util.SimpleLoggers;
 
 /**
  * ref : http://www.baeldung.com/java-dynamic-proxies
@@ -32,7 +32,7 @@ public class TimingDynamicInvocationHandler implements InvocationHandler {
         long start = System.nanoTime();
         Object result = methods.get(method.getName()).invoke(target, args);
         long elapsed = System.nanoTime() - start;
-        SimpleLogger.println("[## Executing {}::{}] args : {}, return : {}, elapsed : {} ns", target.getClass().getName(), method.getName(), Arrays.toString(args), result, elapsed);
+        SimpleLoggers.println("[## Executing {}::{}] args : {}, return : {}, elapsed : {} ns", target.getClass().getName(), method.getName(), Arrays.toString(args), result, elapsed);
         return result;
     }
 }

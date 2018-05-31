@@ -1,7 +1,7 @@
 package blockingqueue;
 
 import java.util.concurrent.BlockingQueue;
-import util.SimpleLogger;
+import util.SimpleLoggers;
 
 /**
  * @author zacconding
@@ -24,11 +24,11 @@ public class Producer implements Runnable {
                 String message = "message" + (i++);
                 que.offer(message);
                 long wait = (long) (Math.random() * 8000L) + 3000L;
-                SimpleLogger.info("Try to produce.... message : {}, next wait : {}", message, wait);
+                SimpleLoggers.info("Try to produce.... message : {}, next wait : {}", message, wait);
                 Thread.sleep(wait);
             }
         } catch (Exception e) {
-            SimpleLogger.error("error", e);
+            SimpleLoggers.error("error", e);
         }
     }
 }
