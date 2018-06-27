@@ -219,6 +219,7 @@ public class SimpleLogger {
     public void flush(PrintStream ps) {
         if (ps != null) {
             ps.print(toString());
+            sb = new StringBuilder();
         }
     }
 

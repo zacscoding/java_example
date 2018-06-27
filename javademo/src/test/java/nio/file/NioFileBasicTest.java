@@ -1,0 +1,141 @@
+package nio.file;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.net.URL;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardWatchEventKinds;
+import java.nio.file.WatchKey;
+import java.nio.file.WatchService;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
+import org.junit.Test;
+import util.SimpleLogger;
+
+/**
+ * @author zacconding
+ * @Date 2018-06-27
+ * @GitHub : https://github.com/zacscoding
+ */
+public class NioFileBasicTest {
+
+    /**
+     * source code : http://palpit.tistory.com/640
+     */
+    @Test
+    public void path() throws Exception {
+        /*
+        path.toString() : C:\git\java_example\javademo\target\test-classes\temp.txt
+        path.getFileName() : temp.txt
+        path.getParent().getFileName() : test-classes
+        path.getNameCount() : 6
+        0 : git
+        1 : java_example
+        2 : javademo
+        3 : target
+        4 : test-classes
+        5 : temp.txt
+        git
+        java_example
+        javademo
+        target
+        test-classes
+        temp.txt
+         */
+        URL url = NioFileBasicTest.class.getClassLoader().getResource("temp.txt");
+        String filePath = url.getPath().substring(1); // for window
+
+        Path path = Paths.get(filePath);
+        SimpleLogger.build().appendln("path.toString() : " + path.toString()).appendln("path.getFileName() : " + path.getFileName())
+                    .appendln("path.getParent().getFileName() : " + path.getParent().getFileName())
+                    .appendln("path.getNameCount() : " + path.getNameCount()).flush();
+
+        for (int i = 0; i < path.getNameCount(); i++) {
+            System.out.println(i + " : " + path.getName(i));
+        }
+
+        path.iterator().forEachRemaining(path1 -> System.out.println(path1.toString()));
+    }
+
+    @Test
+    public void watchTest() throws Exception {
+        Path path = Paths.get("src/test/resources/nio-file-test");
+        if (Files.exists(path)) {
+            File root = path.toFile();
+            for (File file : root.listFiles()) {
+                System.out.println("remove file : " + file.delete());
+            }
+        } else {
+            if (!Files.exists(path)) {
+                Files.createDirectory(path);
+            }
+        }
+
+        WatchService watchService = FileSystems.getDefault().newWatchService();
+        Random random = new Random();
+        path.register(watchService, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_MODIFY, StandardWatchEventKinds.ENTRY_DELETE);
+
+        new Thread(() -> {
+            try {
+                while (!Thread.currentThread().isInterrupted()) {
+                    WatchKey key = watchService.take();
+                    key.pollEvents().forEach(event -> {
+                        SimpleLogger.println("[Watch] event.kind() => name : {}, class : {}", event.kind().name(), event.kind().type().getName());
+                    });
+                    if (!key.reset()) {
+                        break;
+                    }
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }).start();
+
+        new Thread(() -> {
+            try {
+                int count = 10;
+                for (int i = 0; i <= count; i++) {
+                    Path filePath = Paths.get(path.toString(), "file" + i + ".txt");
+                    Files.createFile(filePath);
+                }
+
+                while (!Thread.currentThread().isInterrupted()) {
+                    ++count;
+                    // 0 : create , 1 : modify , 3 : delete
+                    int type = random.nextInt(3);
+                    if (type == 0) {
+                        System.out.println("[Task] create file");
+                        Path filePath = Paths.get(path.toString(), "file" + count + ".txt");
+                        Files.createFile(filePath);
+                    } else if (type == 1) {
+                        File dir = path.toFile();
+                        if (dir.listFiles().length != 0) {
+                            System.out.println("[Task] modify file");
+                            File modifyFile = dir.listFiles()[random.nextInt(dir.listFiles().length)];
+                            try (FileOutputStream fos = new FileOutputStream(modifyFile)) {
+                                fos.write(new byte[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0});
+                            }
+                        }
+                    } else if (type == 2) {
+                        File dir = path.toFile();
+                        if (dir.listFiles().length != 0) {
+                            System.out.println("[Task] remove file");
+                            File removeFile = dir.listFiles()[random.nextInt(dir.listFiles().length)];
+                            removeFile.delete();
+                        }
+                    } else {
+                        System.out.println("type is error : " + type);
+                    }
+                    TimeUnit.SECONDS.sleep(1L);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
+
+        TimeUnit.SECONDS.sleep(30L);
+    }
+}
