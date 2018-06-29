@@ -1,0 +1,11 @@
+{
+  "command": "type2",
+  "parameters": {
+    "id": [
+      "test",
+      "test2"
+    ],
+    "name": "hiva",
+    "age": 1234
+  }
+}

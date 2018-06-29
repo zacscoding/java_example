@@ -1,0 +1,8 @@
+{
+  "command": "type1",
+  "parameters": {
+    "name": "zaccoding",
+    "bi": "0x2323",
+    "test": 1234
+  }
+}
