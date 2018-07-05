@@ -1,3 +1,5 @@
+package etc;
+
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;

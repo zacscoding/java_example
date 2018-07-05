@@ -1,3 +1,5 @@
+package git;
+
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -26,7 +28,8 @@ import util.SimpleLogger;
  */
 public class GitTest {
 
-    String gitURI = "https://github.com/zacscoding/jgit-test.git";
+    // String gitURI = "https://github.com/zacscoding/jgit-test.git";
+    String gitURI = "root@192.168.5.77:/home/app/test.git";
     String destDir = "E:\\jgit-test\\jgit-tests";
 
     Path dirPath = Paths.get(destDir);
