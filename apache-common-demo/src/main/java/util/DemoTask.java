@@ -16,7 +16,7 @@ public class DemoTask {
             SimpleLogger.error("failed to " + title, e);
         }
 
-        System.out.println("======================================================== //\n");
+        System.out.println("=========================================================== //\n");
     }
 
     @FunctionalInterface
