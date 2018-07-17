@@ -1,4 +1,4 @@
-package collections.map;
+package apahce.collections.map;
 
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;

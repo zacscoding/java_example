@@ -1,8 +1,7 @@
-package collections.map;
+package apahce.collections.map;
 
 import org.apache.commons.collections4.IterableMap;
 import org.apache.commons.collections4.MapIterator;
-import org.apache.commons.collections4.map.FixedSizeMap;
 import org.apache.commons.collections4.map.HashedMap;
 import org.junit.Test;
 import util.DemoTask;

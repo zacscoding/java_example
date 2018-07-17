@@ -1,4 +1,4 @@
-package collections.bag;
+package apahce.collections.bag;
 
 import static org.junit.Assert.assertTrue;
 

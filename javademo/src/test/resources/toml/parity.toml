@@ -1,0 +1,7 @@
+[parity]
+mode = "last"
+mode_timeout = 300
+
+[account]
+unlock = ["0xdeadbeefcafe0000000000000000000000000000", "0xdeadbeefcafe0000000000000000000000000001111"]
+keys_iterations = 10240

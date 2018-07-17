@@ -1,4 +1,4 @@
-package collections.bidimap;
+package apahce.collections.bidimap;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertNull;
