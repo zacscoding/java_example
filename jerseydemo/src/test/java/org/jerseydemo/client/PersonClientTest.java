@@ -18,6 +18,7 @@ import org.jerseydemo.domain.Person;
 import org.jerseydemo.util.SimpleLogger;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -48,6 +49,7 @@ public class PersonClientTest {
     }
 
     @Test
+    @Ignore
     public void test() {
         final String id = "id";
         final String name = "person";

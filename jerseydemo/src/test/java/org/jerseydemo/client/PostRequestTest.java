@@ -9,6 +9,7 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.jerseydemo.util.SimpleLogger;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -19,6 +20,7 @@ import org.junit.Test;
 public class PostRequestTest {
 
     @Test
+    @Ignore
     public void postRequest() {
         String message = "test-message";
         String url = "http://localhost:8080/rest";

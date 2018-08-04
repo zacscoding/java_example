@@ -11,6 +11,7 @@ import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.Random;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 import util.SimpleLogger;
@@ -50,8 +51,7 @@ public class NioFileBasicTest {
 
         Path path = Paths.get(filePath);
         SimpleLogger.build().appendln("path.toString() : " + path.toString()).appendln("path.getFileName() : " + path.getFileName())
-                    .appendln("path.getParent().getFileName() : " + path.getParent().getFileName())
-                    .appendln("path.getNameCount() : " + path.getNameCount()).flush();
+                    .appendln("path.getParent().getFileName() : " + path.getParent().getFileName()).appendln("path.getNameCount() : " + path.getNameCount()).flush();
 
         for (int i = 0; i < path.getNameCount(); i++) {
             System.out.println(i + " : " + path.getName(i));
@@ -82,9 +82,13 @@ public class NioFileBasicTest {
             try {
                 while (!Thread.currentThread().isInterrupted()) {
                     WatchKey key = watchService.take();
+
                     key.pollEvents().forEach(event -> {
-                        SimpleLogger.println("[Watch] event.kind() => name : {}, class : {}", event.kind().name(), event.kind().type().getName());
+                        Path eventCtx = (Path) event.context();
+                        SimpleLogger.println("[Watch] event.kind() => name : {}, class : {}, context class : {}, path : {}", event.kind().name(), event.kind().type().getName(),
+                            event.context().getClass().getName(), eventCtx.toString());
                     });
+
                     if (!key.reset()) {
                         break;
                     }
@@ -137,5 +141,114 @@ public class NioFileBasicTest {
         }).start();
 
         TimeUnit.SECONDS.sleep(30L);
+    }
+
+    @Test
+    public void eventRecursive() throws Exception {
+        Path path = Paths.get("src/test/resources/nio-file-test");
+        if (Files.exists(path)) {
+            File root = path.toFile();
+            for (File file : root.listFiles()) {
+                System.out.println("remove file : " + file.delete());
+            }
+        } else {
+            if (!Files.exists(path)) {
+                Files.createDirectory(path);
+            }
+        }
+
+        WatchService watchService = FileSystems.getDefault().newWatchService();
+        path.register(watchService, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_MODIFY, StandardWatchEventKinds.ENTRY_DELETE);
+
+        Thread t = new Thread(() -> {
+            try {
+                while (!Thread.currentThread().isInterrupted()) {
+                    WatchKey key = watchService.take();
+
+                    key.pollEvents().forEach(event -> {
+                        Path eventCtx = (Path) event.context();
+                        SimpleLogger.println("[Watch] event.kind() => name : {}, class : {}, context class : {}, path : {}", event.kind().name(), event.kind().type().getName(),
+                            event.context().getClass().getName(), eventCtx.toString());
+                    });
+
+                    if (!key.reset()) {
+                        break;
+                    }
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+
+        t.setDaemon(true);
+        t.start();
+
+        TimeUnit.MINUTES.sleep(2);
+    }
+
+
+    @Test
+    public void fileDetectTest() throws Exception {
+        Path path = Paths.get("src/test/resources/nio-file-test");
+        /*boolean clear = false;
+        if (Files.exists(path)) {
+            File root = path.toFile();
+            clear = root.delete();
+        } else {
+            clear = true;
+        }
+        if(clear) {
+            Files.createDirectory(path);
+        }*/
+
+        WatchService watchService = FileSystems.getDefault().newWatchService();
+        path.register(watchService, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_MODIFY, StandardWatchEventKinds.ENTRY_DELETE);
+
+        CountDownLatch countDownLatch = new CountDownLatch(3);
+
+        Thread t = new Thread(() -> {
+            try {
+                while (!Thread.currentThread().isInterrupted()) {
+                    if (countDownLatch.getCount() == 0) {
+                        break;
+                    }
+
+                    WatchKey key = watchService.take();
+
+                    key.pollEvents().forEach(event -> {
+                        Path eventCtx = (Path) event.context();
+                        SimpleLogger.println("[Watch] event.kind() => name : {}, class : {}, context class : {}, toAbsolutePath : {}, fileName : {}", event.kind().name(), event.kind().type().getName(),
+                            event.context().getClass().getName(), eventCtx.toAbsolutePath(), eventCtx.getFileName().toString());
+                    });
+
+                    if (!key.reset()) {
+                        break;
+                    }
+
+                    countDownLatch.countDown();
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+
+        t.setDaemon(true);
+        t.start();
+
+        /*File dir = path.toFile();
+
+        // crate dir
+        File newDir = new File(dir, "new-dir");
+        newDir.mkdirs();
+
+        // crate dir
+        File newDir2 = new File(dir, "new-dir2");
+        newDir2.mkdirs();
+
+        // create file
+        File newFile = new File(newDir, "test.txt");
+        newFile.createNewFile();*/
+
+        countDownLatch.await(2, TimeUnit.MINUTES);
     }
 }
