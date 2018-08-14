@@ -115,6 +115,12 @@
             <version>3.1.2</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.hierynomus</groupId>
+            <artifactId>sshj</artifactId>
+            <version>0.26.0</version>
+        </dependency>
+
 
     </dependencies>
 
