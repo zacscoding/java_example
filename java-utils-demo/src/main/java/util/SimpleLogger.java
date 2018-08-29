@@ -15,6 +15,7 @@ public class SimpleLogger {
     private static String NEW_LINE;
     private static PrintStream PS;
     private static SimpleDateFormat SIMPLE_DATE_FORMAT;
+    private static final Object LOCK = new Object();
     static {
         NEW_LINE = System.getProperty("line.separator");
         if (NEW_LINE == null || NEW_LINE.length() == 0) {
@@ -34,6 +35,12 @@ public class SimpleLogger {
         SIMPLE_DATE_FORMAT = simpleDateFormat;
     }
 
+    public static String parseContent(String message, Object... args) {
+        StringBuilder sb = new StringBuilder();
+        parseContent(sb, message, args);
+        return sb.toString();
+    }
+
     public static void print(String message, Object... args) {
         StringBuilder sb = new StringBuilder();
         parseContent(sb, message, args);
@@ -41,8 +48,10 @@ public class SimpleLogger {
     }
 
     public static void println(String message, Object... args) {
-        print(message, args);
-        PS.println();
+        synchronized (LOCK) {
+            print(message, args);
+            PS.println();
+        }
     }
 
     public static void info(String message, Object... args) {
@@ -56,9 +65,11 @@ public class SimpleLogger {
 
     public static void error(String message, Throwable t) {
         String prefix = SIMPLE_DATE_FORMAT.format(new Date()) + " [ERROR] " + getClassName() + " : ";
-        println(prefix + (message == null ? "" : message));
-        if (t != null) {
-            t.printStackTrace(PS);
+        synchronized (LOCK) {
+            println(prefix + (message == null ? "" : message));
+            if (t != null) {
+                t.printStackTrace(PS);
+            }
         }
     }
 

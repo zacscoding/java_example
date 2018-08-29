@@ -101,5 +101,6 @@ public class GsonUtil {
     }
 
     private GsonUtil() {
+        throw new UnsupportedOperationException("Not supported to create instance");
     }
 }
