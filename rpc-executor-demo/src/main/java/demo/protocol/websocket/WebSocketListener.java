@@ -204,35 +204,26 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package demo.protocol;
+package demo.protocol.websocket;
 
-import demo.util.Async;
+
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.concurrent.CompletableFuture;
-import org.apache.commons.io.IOUtils;
 
 /**
- * Modified from org.web3j.protocol.Service
+ * A listener used to notify about about new WebSocket messages.
  */
-public abstract class RpcService implements IRpcService {
+public interface WebSocketListener {
 
-    protected abstract InputStream performIO(String request) throws IOException;
+    /**
+     * Called when a new WebSocket message is delivered.
+     *
+     * @param message new WebSocket message
+     *
+     * @throws IOException thrown if an observer failed to process the message
+     */
+    void onMessage(String message) throws IOException;
 
-    @Override
-    public String send(String request) throws IOException {
-        try (InputStream result = performIO(request)) {
-            if (result != null) {
-                return IOUtils.toString(result, StandardCharsets.UTF_8.name());
-            } else {
-                return null;
-            }
-        }
-    }
+    void onError(Exception e);
 
-    @Override
-    public CompletableFuture<String> sendAsync(String request) {
-        return Async.run(() -> send(request));
-    }
+    void onClose();
 }

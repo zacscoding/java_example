@@ -204,35 +204,36 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package demo.protocol;
 
-import demo.util.Async;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
+package demo.protocol.websocket;
+
+import com.fasterxml.jackson.databind.JsonNode;
 import java.util.concurrent.CompletableFuture;
-import org.apache.commons.io.IOUtils;
 
 /**
- * Modified from org.web3j.protocol.Service
+ * Change to raw req & res
  */
-public abstract class RpcService implements IRpcService {
+public class WebSocketRequest {
 
-    protected abstract InputStream performIO(String request) throws IOException;
+    private JsonNode originRootNode;
+    private JsonNode originIdNode;
+    private CompletableFuture<String> onReply;
 
-    @Override
-    public String send(String request) throws IOException {
-        try (InputStream result = performIO(request)) {
-            if (result != null) {
-                return IOUtils.toString(result, StandardCharsets.UTF_8.name());
-            } else {
-                return null;
-            }
-        }
+    public WebSocketRequest(JsonNode originRootNode, JsonNode originIdNode, CompletableFuture<String> onReply) {
+        this.originRootNode = originRootNode;
+        this.originIdNode = originIdNode;
+        this.onReply = onReply;
     }
 
-    @Override
-    public CompletableFuture<String> sendAsync(String request) {
-        return Async.run(() -> send(request));
+    public JsonNode getOriginRootNode() {
+        return originRootNode;
+    }
+
+    public JsonNode getOriginIdNode() {
+        return originIdNode;
+    }
+
+    public CompletableFuture<String> getOnReply() {
+        return onReply;
     }
 }

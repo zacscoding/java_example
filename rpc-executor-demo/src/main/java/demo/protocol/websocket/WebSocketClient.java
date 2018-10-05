@@ -204,35 +204,63 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package demo.protocol;
+package demo.protocol.websocket;
 
-import demo.util.Async;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.concurrent.CompletableFuture;
-import org.apache.commons.io.IOUtils;
+import java.net.URI;
+import java.util.Map;
+import org.java_websocket.handshake.ServerHandshake;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * Modified from org.web3j.protocol.Service
- */
-public abstract class RpcService implements IRpcService {
+public class WebSocketClient extends org.java_websocket.client.WebSocketClient {
 
-    protected abstract InputStream performIO(String request) throws IOException;
+    private static final Logger log = LoggerFactory.getLogger(WebSocketClient.class);
+
+    private WebSocketListener listener;
+
+    public WebSocketClient(URI serverUri) {
+        super(serverUri);
+    }
+
+    public WebSocketClient(URI serverUri, Map<String, String> httpHeaders) {
+        super(serverUri, httpHeaders);
+    }
+
 
     @Override
-    public String send(String request) throws IOException {
-        try (InputStream result = performIO(request)) {
-            if (result != null) {
-                return IOUtils.toString(result, StandardCharsets.UTF_8.name());
-            } else {
-                return null;
-            }
+    public void onOpen(ServerHandshake serverHandshake) {
+        log.info("Opened WebSocket connection to {}", uri);
+    }
+
+    @Override
+    public void onMessage(String s) {
+        try {
+            log.debug("Received message {} from server {}", s, uri);
+            listener.onMessage(s);
+        } catch (Exception e) {
+            log.error("Failed to process message '{}' from server {}", s, uri);
         }
     }
 
     @Override
-    public CompletableFuture<String> sendAsync(String request) {
-        return Async.run(() -> send(request));
+    public void onClose(int code, String reason, boolean remote) {
+        log.info("Closed WebSocket connection to {}, because of reason: '{}'."
+            + "Conection closed remotely: {}", uri, reason, remote);
+        listener.onClose();
+    }
+
+    @Override
+    public void onError(Exception e) {
+        log.error(String.format("WebSocket connection to {} failed with error", uri), e);
+        listener.onError(e);
+    }
+
+    /**
+     * Set a listener that will be called when a new message is received by the client.
+     *
+     * @param listener WebSocket listener
+     */
+    public void setListener(WebSocketListener listener) {
+        this.listener = listener;
     }
 }
