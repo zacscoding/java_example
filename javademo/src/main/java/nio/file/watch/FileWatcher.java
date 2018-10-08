@@ -12,6 +12,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author zacconding
@@ -20,7 +22,9 @@ import java.util.concurrent.TimeUnit;
  */
 public class FileWatcher {
 
+    private static final Logger logger = LoggerFactory.getLogger(FileWatcher.class);
     public static FileWatcher INSTANCE = new FileWatcher();
+
     private static final Object LOCK = new Object();
     private ThreadGroup threadGroup;
     private Map<String, Long> threadIds;
@@ -31,16 +35,12 @@ public class FileWatcher {
 
     public boolean regist(File file, FileModifiedListener listener) {
         if (file == null || file.isDirectory()) {
+            logger.warn("Failed to regist file. file is null or directory. file : {}", file);
             return false;
         }
 
         try {
             Path path = file.toPath();
-            if (path.toFile().isDirectory()) {
-                // have to regist file
-                return false;
-            }
-
             Path parentPath = path.getParent();
             String parentDir = parentPath.toAbsolutePath().toString();
             String fileName = path.getFileName().toString();
@@ -178,8 +178,6 @@ public class FileWatcher {
                                 listener.onModified();
                             }
                         }
-
-                        watchKey.reset();
                     });
                 }
             } catch (InterruptedException e) {

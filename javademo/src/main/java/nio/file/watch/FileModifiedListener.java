@@ -6,5 +6,6 @@ package nio.file.watch;
  * @GitHub : https://github.com/zacscoding
  */
 public interface FileModifiedListener {
+
     void onModified();
 }

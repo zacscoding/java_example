@@ -1,13 +1,21 @@
 package nio.file;
 
 import java.io.File;
+import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardWatchEventKinds;
+import java.nio.file.WatchEvent;
+import java.nio.file.WatchKey;
+import java.nio.file.WatchService;
+import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import nio.file.watch.FileModifiedListener;
 import nio.file.watch.FileWatcher;
 import org.junit.Test;
+import util.SimpleLogger;
 
 /**
  * @author zacconding
@@ -15,6 +23,47 @@ import org.junit.Test;
  * @GitHub : https://github.com/zacscoding
  */
 public class FileWatherTest {
+
+    private AtomicInteger events;
+
+    @Test
+    public void checkEvent() throws Exception {
+        String path = "F:\\testdir";
+        Path testPath = Paths.get(path);
+
+        WatchService watcher = FileSystems.getDefault().newWatchService();
+        testPath.register(watcher, StandardWatchEventKinds.ENTRY_MODIFY, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_DELETE);
+
+        while (!Thread.currentThread().isInterrupted()) {
+            WatchKey watchKey = watcher.take();
+            events = new AtomicInteger();
+
+            for (final WatchEvent<?> event : watchKey.pollEvents()) {
+                events.getAndIncrement();
+                if (event.kind() == StandardWatchEventKinds.ENTRY_MODIFY) {
+                    System.out.println("StandardWatchEventKinds.ENTRY_MODIFY occur..");
+                } else if (event.kind() == StandardWatchEventKinds.ENTRY_CREATE) {
+                    System.out.println("StandardWatchEventKinds.ENTRY_CREATE occur..");
+                } else if (event.kind() == StandardWatchEventKinds.ENTRY_DELETE) {
+                    System.out.println("StandardWatchEventKinds.ENTRY_DELETE occur..");
+                } else {
+                    System.out.println("UnknownEventType... " + event.kind());
+                }
+
+                final Path context = testPath.resolve((Path) event.context());
+                String fileName = context.getFileName().toString();
+                boolean isDirectory = context.toFile().isDirectory();
+
+                SimpleLogger.println("File name : {}, type : {} , last modified : {}"
+                    ,fileName, (isDirectory ? "directory" : "file"), context.toFile().lastModified());
+
+                if (!watchKey.reset()) {
+                    return;
+                }
+            }
+            System.out.println("Event count .. :: " + events.get());
+        }
+    }
 
 
     @Test
