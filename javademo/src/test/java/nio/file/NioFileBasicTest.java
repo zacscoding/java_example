@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
+import java.nio.file.WatchEvent.Kind;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.Map;
@@ -266,6 +267,10 @@ public class NioFileBasicTest {
         path2.register(watchService, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_MODIFY, StandardWatchEventKinds.ENTRY_DELETE);
 
         CountDownLatch countDownLatch = new CountDownLatch(3);
+        Thread t1 = new Thread(() -> {
+
+        });
+
         Thread t = new Thread(() -> {
             try {
                 while (!Thread.currentThread().isInterrupted()) {
@@ -276,9 +281,21 @@ public class NioFileBasicTest {
                     WatchKey key = watchService.take();
 
                     for (WatchEvent<?> event : key.pollEvents()) {
+                        Kind<?> eventType = event.kind();
+                        System.out.println("## Event absolute : " + ((Path)event.context()).toAbsolutePath().toString());
+                        if (eventType == StandardWatchEventKinds.ENTRY_MODIFY) {
+                            System.out.println("ENTRY_MODIFY");
+                        } else if (eventType == StandardWatchEventKinds.ENTRY_CREATE) {
+                            System.out.println("ENTRY_CREATE");
+                        } else if (eventType == StandardWatchEventKinds.ENTRY_DELETE) {
+                            System.out.println("ENTRY_DELETE");
+                        } else {
+                            System.out.println("UNKNOWN TYPE : " + eventType);
+                        }
+
                         Path eventCtx = ((WatchEvent<Path>)event).context();
                         Path resolvedPath = path1.resolve(eventCtx);
-                        SimpleLogger.println("Evfent occur..\neventCtx.toFile().toString() : {}", eventCtx.toFile().toString());
+                        SimpleLogger.println("Event occur..\neventCtx.toFile().toString() : {}", eventCtx.toFile().toString());
                     }
 
                     if (!key.reset()) {
