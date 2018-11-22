@@ -1,9 +1,13 @@
 package thread.executors;
 
+import static org.junit.Assert.fail;
+
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 import org.junit.Test;
+import util.SimpleLogger;
 
 /**
  * @author zacconding
@@ -12,15 +16,18 @@ import org.junit.Test;
  */
 public class ExecutorsStartStopTest {
 
+    private ExecutorService executorService;
+    private Runnable runnable;
+
     @Test
     public void startAndStop() throws Exception {
-        ExecutorService executorService = Executors.newSingleThreadExecutor(r -> {
+        executorService = Executors.newSingleThreadExecutor(r -> {
             Thread t = Executors.defaultThreadFactory().newThread(r);
             t.setDaemon(true);
             return t;
         });
 
-        final Runnable runnable = () -> {
+        runnable = () -> {
             try {
                 while (!Thread.currentThread().isInterrupted()) {
                     System.out.println("Running thread @@");
@@ -33,11 +40,19 @@ public class ExecutorsStartStopTest {
 
         executorService.submit(runnable);
         TimeUnit.SECONDS.sleep(4L);
+        System.out.println("## After sleep..");
         executorService.shutdown();
+        //boolean terminate = executorService.awaitTermination(3L, TimeUnit.SECONDS);
+        boolean terminate = false;
+        SimpleLogger.println("# terminate : {} | isTerminated : {} | isShutdown : {}"
+            , terminate, executorService.isTerminated(), executorService.isShutdown());
 
-        System.out.println("## After calling interrupt");
-        // not working
-        executorService.submit(runnable);
-        TimeUnit.SECONDS.sleep(2L);
+        try {
+            // throw err
+            executorService.submit(runnable);
+            fail();
+        } catch(RejectedExecutionException e) {
+
+        }
     }
 }
