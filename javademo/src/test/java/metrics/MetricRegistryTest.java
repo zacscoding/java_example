@@ -24,7 +24,7 @@ public class MetricRegistryTest {
     @Test
     public void basic() {
         DemoTask.doTask("Meter", this::meter);
-        DemoTask.doTask("Gauge", this::guage);
+        DemoTask.doTask("Gauge", this::gauge);
         DemoTask.doTask("Counter", this::counter);
     }
 
@@ -47,7 +47,7 @@ public class MetricRegistryTest {
                 meter.getFifteenMinuteRate());
     }
 
-    private void guage() {
+    private void gauge() {
         AttendanceRatioGauge attendanceRatioGauge = new AttendanceRatioGauge(15, 20);
         assertTrue(attendanceRatioGauge.getValue() == 0.75D);
 

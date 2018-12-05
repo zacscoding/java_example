@@ -1,4 +1,4 @@
-package util;
+package random;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -6,7 +6,7 @@ import static org.junit.Assert.fail;
 
 import java.util.Random;
 import org.junit.Test;
-import util.RandomIndexGenerator.NotRemainIndexException;
+import random.RandomIndexGenerator.NotRemainIndexException;
 
 /**
  * @author zacconding
