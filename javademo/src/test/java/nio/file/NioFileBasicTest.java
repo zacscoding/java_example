@@ -2,15 +2,20 @@ package nio.file;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.URL;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardWatchEventKinds;
+import java.nio.file.WatchEvent;
+import java.nio.file.WatchEvent.Kind;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
+import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import org.junit.Test;
@@ -250,5 +255,80 @@ public class NioFileBasicTest {
         newFile.createNewFile();*/
 
         countDownLatch.await(2, TimeUnit.MINUTES);
+    }
+
+    @Test
+    public void multiplePathWatcher() throws IOException, InterruptedException {
+        Path path1 = Paths.get("F:\\test\\path1");
+        Path path2 = Paths.get("F:\\test\\path2");
+
+        WatchService watchService = FileSystems.getDefault().newWatchService();
+        path1.register(watchService, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_MODIFY, StandardWatchEventKinds.ENTRY_DELETE);
+        path2.register(watchService, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_MODIFY, StandardWatchEventKinds.ENTRY_DELETE);
+
+        CountDownLatch countDownLatch = new CountDownLatch(3);
+        Thread t1 = new Thread(() -> {
+
+        });
+
+        Thread t = new Thread(() -> {
+            try {
+                while (!Thread.currentThread().isInterrupted()) {
+                    if (countDownLatch.getCount() == 0) {
+                        break;
+                    }
+
+                    WatchKey key = watchService.take();
+
+                    for (WatchEvent<?> event : key.pollEvents()) {
+                        Kind<?> eventType = event.kind();
+                        System.out.println("## Event absolute : " + ((Path)event.context()).toAbsolutePath().toString());
+                        if (eventType == StandardWatchEventKinds.ENTRY_MODIFY) {
+                            System.out.println("ENTRY_MODIFY");
+                        } else if (eventType == StandardWatchEventKinds.ENTRY_CREATE) {
+                            System.out.println("ENTRY_CREATE");
+                        } else if (eventType == StandardWatchEventKinds.ENTRY_DELETE) {
+                            System.out.println("ENTRY_DELETE");
+                        } else {
+                            System.out.println("UNKNOWN TYPE : " + eventType);
+                        }
+
+                        Path eventCtx = ((WatchEvent<Path>)event).context();
+                        Path resolvedPath = path1.resolve(eventCtx);
+                        SimpleLogger.println("Event occur..\neventCtx.toFile().toString() : {}", eventCtx.toFile().toString());
+                    }
+
+                    if (!key.reset()) {
+                        break;
+                    }
+
+                    countDownLatch.countDown();
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+
+        t.setDaemon(true);
+        t.start();
+
+        countDownLatch.await();
+        t.interrupt();
+        System.out.println(">> Complete");
+    }
+
+    @Test
+    public void kindTest() {
+
+    }
+
+    @Test
+    public void pathHashCode() {
+        Path p1 = Paths.get("F:\\test\\path1");
+        Path p2 = Paths.get("F:\\test\\path1");
+
+        System.out.println("addr : " + p1.toString() + " , " + p2.toString());
+        System.out.println("hash : " + p1.hashCode() + " , " + p2.hashCode());
+        System.out.println(p1.equals(p2));
     }
 }
