@@ -77,6 +77,11 @@ public class FileWatcher2 {
         }
     }
 
+    /**
+     * remove to subscribe
+     * @param file  detected file or directory
+     * @param id    to distingush thread
+     */
     public void remove(File file, String id) {
         if (file != null && StringUtils.hasText(id)) {
             Path detectingPath = getPathOrParentPath(file);
