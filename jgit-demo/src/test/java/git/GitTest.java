@@ -19,6 +19,7 @@ import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
 import org.junit.Test;
+import task.DoTask;
 import util.SimpleLogger;
 
 /**
@@ -39,19 +40,19 @@ public class GitTest {
     @Test
     public void stepByStep() throws Exception {
         // del dir & clone
-        step("Start to clone", () -> cloneRepository());
+        DoTask.step("Start to clone", () -> cloneRepository());
 
         // pull
-        step("Start to pull", () -> pull());
+        DoTask.step("Start to pull", () -> pull());
 
         // write 3 times & commit
-        step("Start to write & commit 3", () -> writeAndCommitRepeat(3));
+        DoTask.step("Start to write & commit 3", () -> writeAndCommitRepeat(3));
 
         // read content at commits
-        step("Start to read content at commits", () -> displayFiles());
+        DoTask.step("Start to read content at commits", () -> displayFiles());
 
         // push to upstream
-        step("Start to push", () -> push());
+        DoTask.step("Start to push", () -> push());
     }
 
     // Step1 : clone repository
@@ -81,9 +82,10 @@ public class GitTest {
     // Step4 : Push
     private void push() throws Exception {
         FileRepositoryBuilder builder = new FileRepositoryBuilder();
-        try (Repository repository = builder.setGitDir(new File(destDir + "\\.git")).readEnvironment() // scan environment GIT_* variables
-                                            .findGitDir() // scan up the file system tree
-                                            .build()) {
+        try (Repository repository = builder.setGitDir(new File(destDir + "\\.git"))
+            .readEnvironment() // scan environment GIT_* variables
+            .findGitDir() // scan up the file system tree
+            .build()) {
             try (Git git = new Git(repository)) {
                 git.push().call();
             }
@@ -153,19 +155,5 @@ public class GitTest {
             git.add().addFilepattern(".").call();
             git.commit().setMessage("commit v" + version).call();
         }
-    }
-
-    private void step(String title, DoTask task) throws Exception {
-        System.out.println("## ======================================================== ");
-        System.out.println(title);
-        task.run();
-        System.out.println("## ======================================================== //\n\n");
-    }
-
-
-    @FunctionalInterface
-    public interface DoTask {
-
-        void run() throws Exception;
     }
 }
