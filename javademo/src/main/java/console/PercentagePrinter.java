@@ -48,7 +48,6 @@ public class PercentagePrinter {
         }
 
         String percentage = String.format("%.2f%%", (progressPercentage * 100));
-
         out.printf("]  %3s", percentage);
     }
 

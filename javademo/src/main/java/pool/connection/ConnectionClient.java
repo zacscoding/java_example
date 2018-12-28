@@ -1,6 +1,11 @@
 package pool.connection;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.URI;
+import org.springframework.util.SocketUtils;
 import util.SimpleLogger;
 
 /**
@@ -10,36 +15,36 @@ import util.SimpleLogger;
  */
 public class ConnectionClient {
 
-    private AtomicInteger rand = new AtomicInteger(0);
-    private int id;
+    private URI uri;
 
-    public ConnectionClient(int id) {
-        this.id = id;
+    public ConnectionClient(URI uri) {
+        this.uri = uri;
     }
 
     /**
      * Check connection alive
      */
     public boolean isAlive() {
-        boolean result = rand.getAndIncrement() % 2 == 0;
-        SimpleLogger.println("{} try to isAlive.. result : {}", toString(), result);
-        return result;
+        try {
+            Socket socket = new Socket();
+            socket.connect(new InetSocketAddress(uri.getHost(), uri.getPort()), 1000);
+            socket.close();
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public void close() {
         SimpleLogger.println("{} close() is called", toString());
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
+    public URI getUri() {
+        return uri;
     }
 
     @Override
     public String toString() {
-        return getClass().getName() + "@" + Integer.toHexString(hashCode()) + "-" + id;
+        return uri.toString();
     }
 }

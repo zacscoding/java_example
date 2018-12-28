@@ -1,6 +1,8 @@
 package pool.connection;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import java.net.URI;
+import java.util.List;
+import java.util.Random;
 import org.apache.commons.pool2.PooledObject;
 import org.apache.commons.pool2.PooledObjectFactory;
 import org.apache.commons.pool2.impl.DefaultPooledObject;
@@ -13,16 +15,16 @@ import util.SimpleLogger;
  */
 public class ConnectionClientFactory implements PooledObjectFactory<ConnectionClient> {
 
-    private AtomicInteger idGenerator = new AtomicInteger(0);
+    private Random indexGenerator;
+    private List<URI> uris;
+
+    public ConnectionClientFactory(List<URI> uris) {
+        this.uris = uris;
+    }
 
     @Override
     public PooledObject<ConnectionClient> makeObject() throws Exception {
-        int id = idGenerator.getAndIncrement();
-
-        ConnectionClient client = new ConnectionClient(id);
-
-        SimpleLogger.println("makeObject() : {}", client.toString());
-
+        ConnectionClient client = new ConnectionClient(uris.get(indexGenerator.nextInt(uris.size())));
         return new DefaultPooledObject<>(client);
     }
 
@@ -46,13 +48,8 @@ public class ConnectionClientFactory implements PooledObjectFactory<ConnectionCl
         ConnectionClient client = pool.getObject();
 
         if (client != null) {
-            SimpleLogger.println("validateObject() : {}", client);
-            boolean result = client.isAlive();
-            SimpleLogger.println("validateObject() : {} > {}", client, result);
-            return result;
+            return client.isAlive();
         }
-
-        SimpleLogger.println("validateObject() but null");
 
         return false;
     }
