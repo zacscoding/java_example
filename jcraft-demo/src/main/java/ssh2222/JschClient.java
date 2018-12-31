@@ -1,4 +1,4 @@
-package ssh;
+package ssh2222;
 
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.JSch;

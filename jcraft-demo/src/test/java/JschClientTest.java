@@ -2,8 +2,7 @@ import com.jcraft.jsch.JSchException;
 import java.nio.charset.Charset;
 import org.junit.Before;
 import org.junit.Test;
-import org.omg.PortableServer.POA;
-import ssh.JschClient;
+import ssh2222.JschClient;
 
 /**
  * @author zacconding

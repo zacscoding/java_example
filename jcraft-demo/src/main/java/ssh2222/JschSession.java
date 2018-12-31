@@ -1,4 +1,4 @@
-package ssh;
+package ssh2222;
 
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelExec;
@@ -18,7 +18,6 @@ import java.util.Queue;
 public class JschSession implements RemoteSession {
 
     private Object rwMutex;
-
     private final Session sock;
     private Queue<Channel> channels;
 

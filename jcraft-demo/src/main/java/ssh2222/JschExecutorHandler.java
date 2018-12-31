@@ -1,5 +1,4 @@
-package ssh;
-
+package ssh2222;
 
 import java.io.File;
 import java.io.IOException;
@@ -53,7 +52,7 @@ public class JschExecutorHandler implements Executor {
 
     @Override
     public void setExitValue(int value) {
-        this.setExitValues(new int[] {value});
+        this.setExitValues(new int[]{value});
     }
 
     @Override
@@ -128,12 +127,14 @@ public class JschExecutorHandler implements Executor {
     }
 
     @Override
-    public void execute(CommandLine commandLine, ExecuteResultHandler executeResultHandler) throws ExecuteException, IOException {
+    public void execute(CommandLine commandLine, ExecuteResultHandler executeResultHandler)
+        throws ExecuteException, IOException {
 
     }
 
     @Override
-    public void execute(CommandLine commandLine, Map<String, String> map, ExecuteResultHandler executeResultHandler) throws ExecuteException, IOException {
+    public void execute(CommandLine commandLine, Map<String, String> map, ExecuteResultHandler executeResultHandler)
+        throws ExecuteException, IOException {
 
     }
 
