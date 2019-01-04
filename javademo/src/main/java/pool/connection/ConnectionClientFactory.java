@@ -2,7 +2,7 @@ package pool.connection;
 
 import java.net.URI;
 import java.util.List;
-import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.pool2.PooledObject;
 import org.apache.commons.pool2.PooledObjectFactory;
 import org.apache.commons.pool2.impl.DefaultPooledObject;
@@ -15,16 +15,21 @@ import util.SimpleLogger;
  */
 public class ConnectionClientFactory implements PooledObjectFactory<ConnectionClient> {
 
-    private Random indexGenerator;
+    private AtomicInteger index;
     private List<URI> uris;
 
     public ConnectionClientFactory(List<URI> uris) {
         this.uris = uris;
+        this.index = new AtomicInteger(0);
     }
 
     @Override
     public PooledObject<ConnectionClient> makeObject() throws Exception {
-        ConnectionClient client = new ConnectionClient(uris.get(indexGenerator.nextInt(uris.size())));
+        int idx = index.getAndIncrement() % uris.size();
+        ConnectionClient client = new ConnectionClient(uris.get(idx));
+
+        SimpleLogger.println("[CONN-CLIENT-FACTORY] makeObject(). idx : {} | uri : {}", idx, client.getUri());
+
         return new DefaultPooledObject<>(client);
     }
 
@@ -32,11 +37,11 @@ public class ConnectionClientFactory implements PooledObjectFactory<ConnectionCl
     public void destroyObject(PooledObject<ConnectionClient> pool) throws Exception {
         ConnectionClient client = pool.getObject();
         if (client == null) {
-            SimpleLogger.println("destroyObject() but null");
+            SimpleLogger.println("[CONN-CLIENT-FACTORY] destroyObject() but null");
             return;
         }
 
-        SimpleLogger.println("destroyObject() : {}", client);
+        SimpleLogger.println("[CONN-CLIENT-FACTORY] destroyObject() : {}", client);
 
         if (client.isAlive()) {
             client.close();
@@ -48,6 +53,10 @@ public class ConnectionClientFactory implements PooledObjectFactory<ConnectionCl
         ConnectionClient client = pool.getObject();
 
         if (client != null) {
+            SimpleLogger.println(
+                "[CONN-CLIENT-FACTORY] Validation {} >> {}", client.getUri(), client.isAlive()
+            );
+
             return client.isAlive();
         }
 
@@ -56,11 +65,27 @@ public class ConnectionClientFactory implements PooledObjectFactory<ConnectionCl
 
     @Override
     public void activateObject(PooledObject<ConnectionClient> pool) throws Exception {
-        SimpleLogger.println("activateObject() is called : {}", pool.getObject());
+        ConnectionClient client = pool.getObject();
+
+        if (client != null && client.isAlive()) {
+            SimpleLogger.println("[CONN-CLIENT-FACTORY] activeObject() is called : {}", client);
+            return;
+        }
+
+        SimpleLogger.println("[CONN-CLIENT-FACTORY] activeObject() is called : {} but throw ex", client);
+        throw new Exception();
     }
 
     @Override
     public void passivateObject(PooledObject<ConnectionClient> pool) throws Exception {
-        SimpleLogger.println("passivateObject() is called : {}", pool.getObject());
+        SimpleLogger.println("[CONN-CLIENT-FACTORY] passivateObject() is called : {}", pool.getObject());
+
+        ConnectionClient client = pool.getObject();
+
+        if (client != null && client.isAlive()) {
+            return;
+        }
+
+        throw new Exception();
     }
 }

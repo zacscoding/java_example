@@ -1,11 +1,8 @@
 package pool.connection;
 
-import java.net.DatagramSocket;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.URI;
-import org.springframework.util.SocketUtils;
 import util.SimpleLogger;
 
 /**
@@ -36,7 +33,7 @@ public class ConnectionClient {
     }
 
     public void close() {
-        SimpleLogger.println("{} close() is called", toString());
+        SimpleLogger.println("[CONN-CLIENT] {} close() is called", toString());
     }
 
     public URI getUri() {
