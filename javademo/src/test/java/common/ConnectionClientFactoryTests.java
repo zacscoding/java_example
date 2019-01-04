@@ -8,6 +8,7 @@ package common;
 public class ConnectionClientFactoryTests {
 
     private int openPort() {
+        return 0;
     }
 
     private void closePort() {
