@@ -3,6 +3,7 @@ package docker;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.model.Container;
 import demo.DockerClientHelper;
+import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
 
@@ -18,8 +19,8 @@ public class ConnectTest {
             .withStatusFilter("exited").exec();
 
         for (Container container : containers) {
-            System.out.println(container);
-            System.out.println(container.getNames());
+            System.out.println(container.getId());
+            System.out.println(Arrays.toString(container.getNames()));
         }
 
         dockerClient.close();
