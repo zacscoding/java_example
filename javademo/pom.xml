@@ -55,6 +55,13 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/aspectj/aspectjrt -->
+        <dependency>
+            <groupId>aspectj</groupId>
+            <artifactId>aspectjrt</artifactId>
+            <version>1.5.4</version>
+        </dependency>
+
         <!-- typesafe for ethj -->
         <!-- https://mvnrepository.com/artifact/com.typesafe/config -->
         <dependency>

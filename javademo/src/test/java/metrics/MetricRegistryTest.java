@@ -1,11 +1,14 @@
 package metrics;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.Meter;
+import com.codahale.metrics.MetricRegistry;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -20,34 +23,38 @@ import util.SimpleLogger;
  */
 public class MetricRegistryTest {
 
-
     @Test
-    public void basic() {
-        DemoTask.doTask("Meter", this::meter);
-        DemoTask.doTask("Gauge", this::gauge);
-        DemoTask.doTask("Counter", this::counter);
+    public void metricsNames() {
+        String name1 = MetricRegistry.name(this.getClass(), "child1", "child2");
+        assertThat(name1, is("metrics.MetricRegistryTest.child1.child2"));
+
+        String name2 = MetricRegistry.name("metrics.child1.child2");
+        assertThat(name2, is("metrics.child1.child2"));
+
     }
 
-    private void meter() {
+    @Test
+    public void meter() {
         Meter meter = new Meter();
         long initCount = meter.getCount();
         assertTrue(initCount == 0L);
-        SimpleLogger.println("Init count : {}", initCount);
 
         meter.mark(); // event occurrences count
         assertTrue(meter.getCount() == 1L);
         SimpleLogger.println("After mark() : {}", meter.getCount());
 
-        meter.mark(20);
-        assertTrue(meter.getCount() == 21L);
-        SimpleLogger.println("After mark(20) : {}", meter.getCount());
+        meter.mark(19);
+        assertTrue(meter.getCount() == 20L);
 
-        SimpleLogger
-            .println("getMeanRate() : {} | getOneMinuteRate() : {} | getFiveMinuteRate() : {} | getFifteenMinuteRate() : {}", meter.getMeanRate(), meter.getOneMinuteRate(), meter.getFiveMinuteRate(),
-                meter.getFifteenMinuteRate());
+        meter.mark();
+
+        System.out.println(meter.getMeanRate());
+        System.out.println(meter.getOneMinuteRate());
+        System.out.println(meter.getFiveMinuteRate());
     }
 
-    private void gauge() {
+    @Test
+    public void gauge() {
         AttendanceRatioGauge attendanceRatioGauge = new AttendanceRatioGauge(15, 20);
         assertTrue(attendanceRatioGauge.getValue() == 0.75D);
 
@@ -67,7 +74,8 @@ public class MetricRegistryTest {
         System.out.println("recall... after 5 sec" + activeUserGauge.getValue());
     }
 
-    private void counter() throws Exception{
+    @Test
+    public void counter() throws Exception{
         Counter counter = new Counter();
         long initCount = counter.getCount();
         assertTrue(counter.getCount() == 0L);
