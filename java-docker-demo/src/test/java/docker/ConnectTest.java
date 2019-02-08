@@ -16,7 +16,7 @@ public class ConnectTest {
     public void connect() throws Exception {
         DockerClient dockerClient = DockerClientHelper.INSTANCE.getDockerClient();
         List<Container> containers = dockerClient.listContainersCmd().withShowSize(true).withShowAll(true)
-            .withStatusFilter("exited").exec();
+            .withStatusFilter(Arrays.asList("exited")).exec();
 
         for (Container container : containers) {
             System.out.println(container.getId());
