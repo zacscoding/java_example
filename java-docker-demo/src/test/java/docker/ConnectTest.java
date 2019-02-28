@@ -15,12 +15,14 @@ public class ConnectTest {
     @Test
     public void connect() throws Exception {
         DockerClient dockerClient = DockerClientHelper.INSTANCE.getDockerClient();
-        List<Container> containers = dockerClient.listContainersCmd().withShowSize(true).withShowAll(true)
-            .withStatusFilter(Arrays.asList("exited")).exec();
+        List<Container> containers = dockerClient.listContainersCmd().withShowSize(true).withShowAll(true).exec();
 
         for (Container container : containers) {
             System.out.println(container.getId());
             System.out.println(Arrays.toString(container.getNames()));
+            System.out.println(container.getImage());
+            System.out.println(container.getLabels());
+            System.out.println("-----------------------------------------------");
         }
 
         dockerClient.close();

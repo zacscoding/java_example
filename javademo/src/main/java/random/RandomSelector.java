@@ -9,16 +9,16 @@ import java.util.Random;
  * @Date 2018-12-05
  * @GitHub : https://github.com/zacscoding
  */
-public class RandomExtractor<T> {
+public class RandomSelector<T> {
 
     private T[] item;
     private int offset;
 
-    public static RandomExtractor<Integer> createIntegerItems(int size) {
+    public static RandomSelector<Integer> createIntegerItems(int size) {
         return createIntegerItems(0, size - 1);
     }
 
-    public static RandomExtractor<Integer> createIntegerItems(int start, int last) {
+    public static RandomSelector<Integer> createIntegerItems(int start, int last) {
         if (start > last) {
             throw new IllegalArgumentException("start must be smaller than last");
         }
@@ -30,10 +30,10 @@ public class RandomExtractor<T> {
             item[i] = start + i;
         }
 
-        return new RandomExtractor<>(item);
+        return new RandomSelector<>(item);
     }
 
-    public RandomExtractor(T[] item) {
+    public RandomSelector(T[] item) {
         this.item = item;
         reset();
     }
@@ -59,6 +59,8 @@ public class RandomExtractor<T> {
         for (int i = item.length; i > 1; i--) {
             swap(i - 1, rnd.nextInt(i));
         }
+
+        offset = 0;
     }
 
     private void swap(int idx1, int idx2) {

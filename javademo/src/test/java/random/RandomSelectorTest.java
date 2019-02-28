@@ -1,18 +1,19 @@
 package random;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.stream.IntStream;
 import org.junit.Test;
-import random.RandomExtractor.NoRemainItemException;
+import random.RandomSelector.NoRemainItemException;
 
 /**
  * @author zacconding
  * @Date 2018-12-05
  * @GitHub : https://github.com/zacscoding
  */
-public class RandomExtractorTest {
+public class RandomSelectorTest {
 
     @Test
     public void testIntegers() {
@@ -20,7 +21,7 @@ public class RandomExtractorTest {
         final int last = 20;
         int count = last - start + 1;
 
-        RandomExtractor<Integer> selector = RandomExtractor.createIntegerItems(start, last);
+        RandomSelector<Integer> selector = RandomSelector.createIntegerItems(start, last);
         IntStream.range(0, count).forEach(i -> {
             try {
                 int item = selector.nextItem();
@@ -43,7 +44,7 @@ public class RandomExtractorTest {
     @Test
     public void testStrings() {
         String[] items = {"aa", "bb", "cc", "dd"};
-        RandomExtractor<String> selector = new RandomExtractor<>(items);
+        RandomSelector<String> selector = new RandomSelector<>(items);
 
         for (int i = 0; i < items.length; i++) {
             try {
@@ -61,6 +62,25 @@ public class RandomExtractorTest {
         } catch (NoRemainItemException e) {
 
         }
+    }
+
+    @Test
+    public void testReset() {
+        // given
+        String[] args = new String[]{"aa", "bb", "cc"};
+        RandomSelector<String> selector = new RandomSelector<>(args);
+
+        for (int i = 0; i < args.length - 1; i++) {
+            selector.nextItem();
+        }
+
+        // when then
+        selector.reset();
+        for (int i = 0; i < args.length; i++) {
+            selector.nextItem();
+        }
+
+        assertFalse(selector.isRemain());
     }
 
     private boolean contains(String[] items, String item) {

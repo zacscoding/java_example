@@ -63,7 +63,8 @@ public class DockerMetricsTest {
 
     @Test
     public void streamMetricsCallback() throws Exception {
-        String containerId = "37a687553efa";
+        // String containerId = "37a687553efa";
+        String containerId = "ab4ac8366b65";
         ResultCallback<Statistics> callback = docker.statsCmd(containerId).exec(new ResultCallback<Statistics>() {
             private Closeable stream;
             private boolean running = false;
@@ -79,10 +80,10 @@ public class DockerMetricsTest {
                 Long pid = stats.getPidsStats().getCurrent();
                 if (pid == null) {
                     logger.warn("Found Null pid.....");
-                    try {
+                    /*try {
                         close();
                     } catch (IOException e) {
-                    }
+                    }*/
                     return;
                 }
                 // logger.info("Stats :: {}", stats);
