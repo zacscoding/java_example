@@ -1,6 +1,5 @@
 package blockingqueue;
 
-import com.sun.org.apache.xpath.internal.SourceTree;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import util.ThreadUtil;
