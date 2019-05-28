@@ -116,10 +116,10 @@ public class SystemMetrics1 {
         for (String className : classNames) {
             try {
                 Class<?> ret = Class.forName(className);
-                log.info("# Found class : {}", className);
+                logger.info("# Found class : {}", className);
                 return ret;
             } catch (ClassNotFoundException ignore) {
-                log.info("## Failed to find : {}", className);
+                logger.info("## Failed to find : {}", className);
             }
         }
         return null;
