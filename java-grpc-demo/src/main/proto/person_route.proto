@@ -3,6 +3,8 @@ syntax = "proto3";
 option java_multiple_files = true;
 option java_package = "demo.routeguide.proto";
 
+package demo.routeguide;
+
 // person rpc
 service PersonRoute {
   // simple rpc

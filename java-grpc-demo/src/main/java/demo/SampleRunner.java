@@ -6,7 +6,8 @@ package demo;
 public enum SampleRunner {
 
     SAMPLE1("Basic grpc server & client"),
-    ROUTE_GUIDE("Route example");
+    ROUTE_GUIDE("Route example"),
+    TLS("gRpc with TLS");
 
     String description;
 

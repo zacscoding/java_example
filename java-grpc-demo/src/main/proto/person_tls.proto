@@ -1,0 +1,24 @@
+syntax = "proto3";
+option java_multiple_files = true;
+option java_package = "demo.tls.proto";
+
+package demo.tls;
+
+service PersonTLS {
+
+  rpc GetPersonsByName (PersonRequest) returns (stream PersonReply) {
+  }
+}
+
+// person request with name
+message PersonRequest {
+  string name = 1;
+}
+
+// person reply by searching name
+message PersonReply {
+
+  int64 id = 1;
+  string name = 2;
+  int32 age = 3;
+}

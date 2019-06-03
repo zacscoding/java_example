@@ -18,7 +18,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
- * @GitHub : https://github.com/zacscoding
+ * https://github.com/grpc/grpc-java/tree/master/examples/src/main/java/io/grpc/examples/routeguide
  */
 public class PersonRouteClient {
 

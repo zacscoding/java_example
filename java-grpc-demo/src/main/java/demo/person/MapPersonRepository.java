@@ -24,7 +24,7 @@ public class MapPersonRepository implements PersonRepository {
     public Person save(Person person) {
         try {
             lock.writeLock().lock();
-            SimpleLogger.println("Save person : {}", person);
+            //SimpleLogger.println("Save person : {}", person);
             person.setId(idGenerator.getAndIncrement());
             persons.put(person.getId(), clone(person));
 
