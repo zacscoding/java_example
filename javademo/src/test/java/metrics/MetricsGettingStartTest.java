@@ -1,14 +1,12 @@
 package metrics;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import com.codahale.metrics.ConsoleReporter;
 import com.codahale.metrics.Meter;
 import com.codahale.metrics.MetricRegistry;
 import java.util.concurrent.TimeUnit;
-import org.testng.annotations.Test;
+import org.junit.Test;
 
 /**
  * @author zacconding

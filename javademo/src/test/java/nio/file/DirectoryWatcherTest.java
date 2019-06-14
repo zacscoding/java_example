@@ -1,6 +1,6 @@
 package nio.file;
 
-import static org.testng.Assert.assertTrue;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,8 +19,6 @@ import org.junit.Test;
 
 /**
  * @author zacconding
- * @Date 2018-11-01
- * @GitHub : https://github.com/zacscoding
  */
 public class DirectoryWatcherTest {
 
@@ -52,7 +50,8 @@ public class DirectoryWatcherTest {
         child2.toFile().mkdirs();
 
         CountDownLatch countDownLatch = new CountDownLatch(3);
-        TestDirectoryEventListener listener = new TestDirectoryEventListener(new Kind<?>[] {StandardWatchEventKinds.ENTRY_CREATE}, countDownLatch);
+        TestDirectoryEventListener listener = new TestDirectoryEventListener(
+            new Kind<?>[]{StandardWatchEventKinds.ENTRY_CREATE}, countDownLatch);
 
         watcher.subscribe(child1, listener);
         watcher.subscribe(child2, listener);
@@ -77,7 +76,8 @@ public class DirectoryWatcherTest {
         child1.toFile().mkdirs();
 
         CountDownLatch countDownLatch = new CountDownLatch(1);
-        TestDirectoryEventListener listener = new TestDirectoryEventListener(new Kind<?>[] {StandardWatchEventKinds.ENTRY_CREATE}, countDownLatch);
+        TestDirectoryEventListener listener = new TestDirectoryEventListener(
+            new Kind<?>[]{StandardWatchEventKinds.ENTRY_CREATE}, countDownLatch);
 
         watcher.subscribe(child1, listener);
 

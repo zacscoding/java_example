@@ -17,16 +17,13 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.util.AbstractList;
+import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.stubbing.Answer;
-import org.testng.annotations.Test;
 
 /**
  * https://www.baeldung.com/mockito-void-methods
  *
  * @author zacconding
- * @Date 2018-11-13
- * @GitHub : https://github.com/zacscoding
  */
 public class MockitoTutorial {
 
@@ -40,7 +37,7 @@ public class MockitoTutorial {
         verify(myList, times(1)).add(0, "");
     }
 
-    @Test(expectedExceptions = Exception.class)
+    @Test(expected = Exception.class)
     public void givenNullAddAndThenThrows() {
         MyList myList = mock(MyList.class);
         doThrow().when(myList).add(isA(Integer.class), isNull());
