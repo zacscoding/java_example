@@ -11,7 +11,6 @@ public class EnumCompareTests {
         assertTrue(TestEnums.COMPLETE.compareTo(TestEnums.STARTED) < 0);
     }
 
-
     public enum TestEnums {
         COMPLETE, STARTING, STARTED, STOPPING, STOPPED;
     }
