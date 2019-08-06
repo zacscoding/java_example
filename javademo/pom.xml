@@ -115,6 +115,13 @@
             <version>0.7.2</version>
         </dependency>
 
+        <!-- picocli -->
+        <dependency>
+            <groupId>info.picocli</groupId>
+            <artifactId>picocli</artifactId>
+            <version>4.0.1</version>
+        </dependency>
+
         <!-- metrics -->
         <dependency>
             <groupId>io.dropwizard.metrics</groupId>
